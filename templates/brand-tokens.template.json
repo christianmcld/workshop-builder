@@ -1,0 +1,24 @@
+{
+  "client": "Client Name",
+  "website": "https://example.com",
+  "slides_platform": "google-slides | figma | gamma | canva | outline-only",
+  "logo": {
+    "url": "https://example.com/logo.png",
+    "local_path": "assets/logo.png",
+    "background": "works on dark | works on light"
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "text": "#111111",
+    "accent": "#FF5A00",
+    "accent_text": "#FFFFFF",
+    "muted": "#666666"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "note": "Must be Google Fonts family names — the Slides API resolves them by name."
+  },
+  "style_notes": "Overall visual feel: minimal / bold / warm / editorial etc. Border radius, photography style, anything that guides the visual pass.",
+  "voice_notes": "How this brand talks. Pull from client tone files if they exist — never invent."
+}

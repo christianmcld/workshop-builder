@@ -21,6 +21,13 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `framework` | Dark slide, dark-surface rounded card: title / bullets / bold kicker (`sub`) | Named systems and models |
 | `timeline` | Dark slide: arrow line, stage dots, chip labels below, notes above; optional `"accent": true` on the payoff stage | Journeys, compounding, phased concepts |
 | `visual` | Dark slide, muted `[ VISUAL: … ]` placeholder | Second-pass artwork slots |
+| `numbered` | Dark: dual-tone title + mono rows with muted `01 02 03` numerals and `→` flows | Funnel lists, option menus, step sequences |
+| `story` | Dark: muted mono kicker, bold left headline, mono muted paragraphs below | Narrative beats inside the Why/How |
+| `impact` | Dark: bold centered statement over a giant faint watermark cropped in the top-right corner (`chrome.watermark`, `colors.watermark_dark` — slightly lighter than the background) | Hard-hitting statements; alternative to `quote` |
+| `section` + `number` | Dark chapter divider: giant faint numeral left, dash mono kicker, big bold title low-left, corner watermark | Numbered chapter opens |
+| `quadrant` | Light cross-graph: double-arrow axes with muted end labels (`axes: {top,bottom,left,right}`), items placed per quadrant (`q: tl/tr/bl/br`, optional explicit `x`/`y` fractions) | 2×2 concept maps |
+
+Dual-tone type (any `text` field): `{{phrase}}` renders in the display serif, italic, in the secondary tone (ink_faint/dark_muted) — the "Time to Build *recommended funnels*" / "In 2024 *I had a winner*" pattern. Pair one bold sans phrase with one serif italic phrase.
 
 Statement extras (use sparingly, ~1 per 10 slides):
 - `"kicker": "— The Setup"` — mono-font caps eyebrow in accent above the statement (the "— IN 2024" pattern).
@@ -38,7 +45,7 @@ Author and review the deck in **concept form**: the full checklist, full timelin
 uv run scripts/split_deck.py {workshop}/deck.json   # -> deck.split.json
 ```
 
-It explodes every multi-item `checklist`/`timeline`/`framework` into a progressive-reveal sequence (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
+It explodes every multi-item `checklist`/`timeline`/`framework`/`quadrant` into a progressive-reveal sequence (quadrants start from a BARE axes slide, then place one item per slide) (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
 
 ## Rules that came from real failures
 

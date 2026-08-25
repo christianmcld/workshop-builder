@@ -1,22 +1,161 @@
 {
-  "title": "STYLE TEMPLATE — one slide of every pattern (concept form; run split_deck.py before building)",
+  "title": "STYLE TEMPLATE \u2014 one slide of every pattern (concept form; run split_deck.py before building)",
   "slides": [
-    { "type": "cover", "text": "Workshop Title", "sub": "One-line promise under 60 chars", "notes": "Opening line, scripted, same every time." },
-    { "type": "section", "text": "Why", "notes": "Section divider. Re-engage beat in notes." },
-    { "type": "statement", "text": "One idea. Under 60 characters.", "notes": "Riff prompt for the speaker." },
-    { "type": "statement", "kicker": "— The Setup", "text": "A statement with [[the key phrase]] accented.", "sub": "Optional lighter sub-line.", "notes": "Kicker = mono caps eyebrow. [[..]] = accent span. Use ~1 per 10 slides." },
-    { "type": "quote", "text": "\"Punchlines live on soft-accent cards.\"" },
-    { "type": "checklist", "text": "By the end of\ntoday you'll have.", "pills": ["First outcome, under 55 chars", "Second outcome", "Third outcome"], "notes": "CONCEPT SLIDE: full list. split_deck.py explodes it into one-pill-at-a-time reveals." },
-    { "type": "framework", "text": "The Named Framework", "bullets": ["Part one — short", "Part two — short", "Part three — short"], "sub": "Bold kicker line.\nTwo lines max.", "notes": "Dark card. Bullets reveal on split." },
-    { "type": "timeline", "kicker": "— How it compounds", "text": "The compounding curve", "stages": [
-        { "label": "Week 1", "note": "1 lesson" },
-        { "label": "Month 1", "note": "+4 lessons" },
-        { "label": "Month 6", "note": "+24 lessons" },
-        { "label": "Year 2", "note": "+96 lessons", "accent": true }
-      ], "notes": "Dark. Stages reveal one per slide on split; dots hold position via slots." },
-    { "type": "visual", "text": "bespoke diagram description for the visual pass", "notes": "Dark placeholder. Replaced manually in the Slides editor during the visual pass." },
-    { "type": "section", "text": "Now" },
-    { "type": "statement", "text": "Tonight: do the one thing.", "sub": "The Now asset, named." },
-    { "type": "closing", "text": "Sign-off line", "sub": "Where to go next", "notes": "Q&A pre-frame in notes." }
+    {
+      "type": "cover",
+      "text": "Workshop Title",
+      "sub": "One-line promise under 60 chars",
+      "notes": "Opening line, scripted, same every time."
+    },
+    {
+      "type": "section",
+      "text": "Why",
+      "notes": "Section divider. Re-engage beat in notes."
+    },
+    {
+      "type": "statement",
+      "text": "One idea. Under 60 characters.",
+      "notes": "Riff prompt for the speaker."
+    },
+    {
+      "type": "statement",
+      "kicker": "\u2014 The Setup",
+      "text": "A statement with [[the key phrase]] accented.",
+      "sub": "Optional lighter sub-line.",
+      "notes": "Kicker = mono caps eyebrow. [[..]] = accent span. Use ~1 per 10 slides."
+    },
+    {
+      "type": "quote",
+      "text": "\"Punchlines live on soft-accent cards.\""
+    },
+    {
+      "type": "checklist",
+      "text": "By the end of\ntoday you'll have.",
+      "pills": [
+        "First outcome, under 55 chars",
+        "Second outcome",
+        "Third outcome"
+      ],
+      "notes": "CONCEPT SLIDE: full list. split_deck.py explodes it into one-pill-at-a-time reveals."
+    },
+    {
+      "type": "framework",
+      "text": "The Named Framework",
+      "bullets": [
+        "Part one \u2014 short",
+        "Part two \u2014 short",
+        "Part three \u2014 short"
+      ],
+      "sub": "Bold kicker line.\nTwo lines max.",
+      "notes": "Dark card. Bullets reveal on split."
+    },
+    {
+      "type": "timeline",
+      "kicker": "\u2014 How it compounds",
+      "text": "The compounding curve",
+      "stages": [
+        {
+          "label": "Week 1",
+          "note": "1 lesson"
+        },
+        {
+          "label": "Month 1",
+          "note": "+4 lessons"
+        },
+        {
+          "label": "Month 6",
+          "note": "+24 lessons"
+        },
+        {
+          "label": "Year 2",
+          "note": "+96 lessons",
+          "accent": true
+        }
+      ],
+      "notes": "Dark. Stages reveal one per slide on split; dots hold position via slots."
+    },
+    {
+      "type": "visual",
+      "text": "bespoke diagram description for the visual pass",
+      "notes": "Dark placeholder. Replaced manually in the Slides editor during the visual pass."
+    },
+    {
+      "type": "numbered",
+      "text": "Fieldwork {{recommended funnels}}",
+      "items": [
+        "Landing page \u2192 Sale",
+        "DM \u2192 Lead magnet \u2192 Email \u2192 Sale",
+        "Low ticket workshop \u2192 Sale",
+        "Landing page \u2192 Sales call \u2192 Sale"
+      ],
+      "notes": "Numbered flow list. Dual-tone title: bold + {{serif italic}}."
+    },
+    {
+      "type": "story",
+      "kicker": "To rub more salt in the wounds",
+      "text": "At the time, I didn't know what I know now.",
+      "sub": "So rather than measuring and reverting back.\n\nI stuck with the broken funnel for almost a full year.",
+      "notes": "Story beat: muted mono kicker, bold headline, mono paragraphs."
+    },
+    {
+      "type": "statement",
+      "text": "In 2024 {{I had a winner}}",
+      "notes": "Dual-tone statement (light) \u2014 bold sans + serif italic secondary tone."
+    },
+    {
+      "type": "impact",
+      "text": "Hard-hitting statement with the watermark behind it.",
+      "notes": "Quote alternative: dark, giant faint watermark cropped top-right."
+    },
+    {
+      "type": "section",
+      "number": "01",
+      "kicker": "The good, the bad & the ugly",
+      "text": "My Giant Funnel Mistake",
+      "notes": "Chapter-number divider: giant faint numeral + watermark."
+    },
+    {
+      "type": "quadrant",
+      "axes": {
+        "top": "High Trust",
+        "bottom": "Low Trust",
+        "left": "Active Funnel",
+        "right": "Passive Funnel"
+      },
+      "items": [
+        {
+          "q": "tl",
+          "text": "1. Paid workshop\n2. Sale"
+        },
+        {
+          "q": "tr",
+          "text": "1. Lead magnet\n2. Email\n3. Sale"
+        },
+        {
+          "q": "bl",
+          "text": "1. DM\n2. Sale"
+        },
+        {
+          "q": "br",
+          "text": "1. Landing page\n2. Sale"
+        }
+      ],
+      "notes": "Cross-graph CONCEPT slide: axes + all items. Split shows bare axes first, then one item per slide."
+    },
+    {
+      "type": "section",
+      "text": "Now"
+    },
+    {
+      "type": "statement",
+      "text": "Tonight: do the one thing.",
+      "sub": "The Now asset, named."
+    },
+    {
+      "type": "closing",
+      "text": "Sign-off line",
+      "sub": "Where to go next",
+      "notes": "Q&A pre-frame in notes."
+    }
   ]
 }

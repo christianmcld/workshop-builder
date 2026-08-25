@@ -33,13 +33,15 @@ def reveals(slide, key):
         slide.pop("split", None)
         return [slide]
     out = []
-    for n in range(1, len(items) + 1):
+    # quadrant graphs reveal from a BARE axes slide (0 items), then one per slide
+    start = 0 if slide.get("type") == "quadrant" else 1
+    for n in range(start, len(items) + 1):
         s = copy.deepcopy(slide)
         s[key] = items[:n]
         s.pop("split", None)
         if slide.get("type") == "timeline":
             s["slots"] = len(items)
-        if n == 1:
+        if n == start:
             if slide.get("notes"):
                 s["notes"] = slide["notes"]
         else:
@@ -57,7 +59,8 @@ def main():
 
     slides = []
     for s in deck["slides"]:
-        key = {"checklist": "pills", "timeline": "stages", "framework": "bullets"}.get(s.get("type"))
+        key = {"checklist": "pills", "timeline": "stages", "framework": "bullets",
+               "quadrant": "items"}.get(s.get("type"))
         slides.extend(reveals(s, key) if key else [s])
 
     before, after = len(deck["slides"]), len(slides)

@@ -47,23 +47,29 @@ def pct(w, h):  # page-relative EMU
     return int(PAGE_W * w), int(PAGE_H * h)
 
 
-def parse_spans(text):
-    """Strip [[accent]] markers; return (clean_text, [(start, end), ...])."""
-    clean, spans, i = "", [], 0
-    while True:
-        a = text.find("[[", i)
-        if a < 0:
+def parse_marks(text):
+    """Strip [[accent]] and {{serif-italic}} markers.
+    Returns (clean_text, [(start, end, kind), ...]) with kind in {"accent", "serif"}."""
+    marks = []
+    clean, i = "", 0
+    pairs = [("[[", "]]", "accent"), ("{{", "}}", "serif")]
+    while i < len(text):
+        hit = None
+        for op, cl, kind in pairs:
+            a = text.find(op, i)
+            if a >= 0 and (hit is None or a < hit[0]):
+                b = text.find(cl, a)
+                if b >= 0:
+                    hit = (a, b, kind)
+        if hit is None:
             clean += text[i:]
             break
-        b = text.find("]]", a)
-        if b < 0:
-            clean += text[i:]
-            break
+        a, b, kind = hit
         clean += text[i:a]
-        spans.append((len(clean), len(clean) + b - a - 2))
+        marks.append((len(clean), len(clean) + b - a - 2, kind))
         clean += text[a + 2:b]
         i = b + 2
-    return clean, spans
+    return clean, marks
 
 
 class Deck:
@@ -181,23 +187,45 @@ class Deck:
                  "backgroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["accent"])}}},
                 "foregroundColor,backgroundColor")
 
-    def kicker(self, page, text, dark, y=0.20):
-        x, _ = pct(0.10, 0)
-        w, _ = pct(0.80, 0)
-        base = self.c["dark_text"] if dark else self.c["text"]
-        tid = self.text_box(page, text.upper(), x, int(PAGE_H * y), w, int(PAGE_H * 0.06),
-                            self.f.get("mono", self.f["body"]), 13, base, bold=True)
-        style, fields = self.accent_style(dark)
-        self.reqs.append({"updateTextStyle": {"objectId": tid, "textRange": {"type": "ALL"},
-                                              "style": style, "fields": fields}})
+    def kicker(self, page, text, dark, y=0.20, align="CENTER", x=0.10, w=0.80, plain=False):
+        base = (self.c["dark_muted"] if dark else self.c["muted"]) if plain else \
+               (self.c["dark_text"] if dark else self.c["text"])
+        tid = self.text_box(page, text.upper(), int(PAGE_W * x), int(PAGE_H * y),
+                            int(PAGE_W * w), int(PAGE_H * 0.06),
+                            self.f.get("mono", self.f["body"]), 13, base, bold=True, align=align)
+        if not plain:
+            style, fields = self.accent_style(dark)
+            self.reqs.append({"updateTextStyle": {"objectId": tid, "textRange": {"type": "ALL"},
+                                                  "style": style, "fields": fields}})
+        return tid
 
-    def accent_spans(self, tid, spans, dark, font, size, bold):
-        style, fields = self.accent_style(dark)
-        for a, b in spans:
+    def apply_marks(self, tid, marks, dark, font, size, bold):
+        accent_style, accent_fields = self.accent_style(dark)
+        serif_color = self.c["dark_muted"] if dark else self.c.get("ink_faint", self.c["muted"])
+        for a, b, kind in marks:
+            if kind == "accent":
+                style, fields = dict(accent_style), accent_fields
+                style.update({"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"}, "bold": bold})
+                fields = "fontFamily,fontSize,bold," + fields
+            else:  # serif italic secondary tone (the "recommended funnels" / "I had a winner" pattern)
+                style = {"fontFamily": self.f["heading"], "italic": True, "bold": False,
+                         "fontSize": {"magnitude": size, "unit": "PT"},
+                         "foregroundColor": {"opaqueColor": {"rgbColor": rgb(serif_color)}}}
+                fields = "fontFamily,italic,bold,fontSize,foregroundColor"
             self.reqs.append({"updateTextStyle": {
                 "objectId": tid, "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
-                "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"}, "bold": bold, **style},
-                "fields": "fontFamily,fontSize,bold," + fields}})
+                "style": style, "fields": fields}})
+
+    def watermark(self, page):
+        """Giant faint brand mark tucked in the top-right corner, cropped by the
+        slide edge — slightly lighter than the dark background."""
+        wm = self.chrome.get("watermark") or self.chrome.get("header_wordmark", "").replace(" ", "")
+        if not wm:
+            return
+        color = self.c.get("watermark_dark", self.c["dark_surface"])
+        self.text_box(page, wm, int(PAGE_W * 0.45), int(-PAGE_H * 0.10), int(PAGE_W * 1.30),
+                      int(PAGE_H * 0.45), self.f["heading"], 130, color, bold=True,
+                      align="START", valign="TOP")
 
     # ---- slide types -------------------------------------------------------
     def add_slide(self, s):
@@ -205,7 +233,9 @@ class Deck:
         self.n += 1
         page = f"s{i:04d}"
         t = s.get("type", "statement")
-        dark = s["dark"] if "dark" in s else t in ("cover", "closing", "framework", "visual", "timeline")
+        dark = s["dark"] if "dark" in s else (
+            t in ("cover", "closing", "framework", "visual", "timeline", "impact", "numbered", "story")
+            or (t == "section" and bool(s.get("number"))))
         bg = self.c["dark_background"] if dark else self.c["background"]
         self.reqs += [
             {"createSlide": {"objectId": page, "insertionIndex": i,
@@ -227,22 +257,80 @@ class Deck:
             dx, _ = pct(0.485, 0)
             d = int(PAGE_H * 0.045)
             self.check_dot(page, dx, int(PAGE_H * 0.24), d)
+        elif t == "section" and s.get("number"):
+            # chapter-number layout (Tom): giant faint numeral, dash kicker,
+            # big bold title low-left, watermark cropped in the corner
+            self.watermark(page)
+            self.text_box(page, str(s["number"]), int(PAGE_W * 0.04), int(PAGE_H * 0.60),
+                          int(PAGE_W * 0.16), int(PAGE_H * 0.28), self.f["body"], 80,
+                          self.c.get("watermark_dark", self.c["dark_muted"]), bold=True,
+                          align="START", valign="MIDDLE")
+            if s.get("kicker"):
+                self.kicker(page, "——— " + s["kicker"], dark, y=0.62, align="START", x=0.20, w=0.72, plain=True)
+            clean, marks = parse_marks(text)
+            tid = self.text_box(page, clean, int(PAGE_W * 0.20), int(PAGE_H * 0.68),
+                                int(PAGE_W * 0.74), int(PAGE_H * 0.18), self.f["body"], 40, ink,
+                                bold=True, align="START", valign="TOP")
+            self.apply_marks(tid, marks, dark, self.f["body"], 40, True)
         elif t == "section":
             # singular text blocks are always centered (left-align is reserved
             # for two-column layouts) — per Christian's design review
+            clean, marks = parse_marks(text)
             x, y = pct(0.10, 0.30)
             w, h = pct(0.80, 0.40)
-            self.text_box(page, text, x, y, w, h, self.f["heading"], 54, ink, bold=True,
-                          sub=sub, sub_size=20, sub_color=muted)
+            tid = self.text_box(page, clean, x, y, w, h, self.f["heading"], 54, ink, bold=True,
+                                sub=sub, sub_size=20, sub_color=muted)
+            self.apply_marks(tid, marks, dark, self.f["heading"], 54, True)
         elif t == "statement":
             if s.get("kicker"):
                 self.kicker(page, s["kicker"], dark)
-            clean, spans = parse_spans(text)
+            clean, marks = parse_marks(text)
             x, y = pct(0.10, 0.30)
             w, h = pct(0.80, 0.40)
             tid = self.text_box(page, clean, x, y, w, h, self.f["body"], 32, ink, bold=True,
                                 line_spacing=115, sub=sub, sub_size=19, sub_color=muted)
-            self.accent_spans(tid, spans, dark, self.f["body"], 32, True)
+            self.apply_marks(tid, marks, dark, self.f["body"], 32, True)
+        elif t == "impact":
+            # hard-hitting statement / quote alternative: dark, giant cropped
+            # watermark in the corner, bold centered line
+            self.watermark(page)
+            clean, marks = parse_marks(text)
+            x, y = pct(0.10, 0.32)
+            w, h = pct(0.80, 0.36)
+            tid = self.text_box(page, clean, x, y, w, h, self.f["body"], 36, ink, bold=True,
+                                line_spacing=115, sub=sub, sub_size=18, sub_color=muted)
+            self.apply_marks(tid, marks, dark, self.f["body"], 36, True)
+        elif t == "story":
+            # story beat: muted mono kicker, bold left headline, mono sub paragraphs
+            if s.get("kicker"):
+                self.kicker(page, "— " + s["kicker"], dark, y=0.30, align="START", x=0.08, w=0.84, plain=True)
+            clean, marks = parse_marks(text)
+            tid = self.text_box(page, clean, int(PAGE_W * 0.08), int(PAGE_H * 0.36),
+                                int(PAGE_W * 0.84), int(PAGE_H * 0.20), self.f["body"], 30, ink,
+                                bold=True, align="START", valign="TOP")
+            self.apply_marks(tid, marks, dark, self.f["body"], 30, True)
+            if sub:
+                self.text_box(page, sub, int(PAGE_W * 0.08), int(PAGE_H * 0.58),
+                              int(PAGE_W * 0.84), int(PAGE_H * 0.28),
+                              self.f.get("mono", self.f["body"]), 14, muted,
+                              align="START", valign="TOP", line_spacing=170)
+        elif t == "numbered":
+            # numbered flow list: dual-tone title + mono rows with muted numerals
+            clean, marks = parse_marks(text)
+            tid = self.text_box(page, clean, int(PAGE_W * 0.10), int(PAGE_H * 0.16),
+                                int(PAGE_W * 0.80), int(PAGE_H * 0.13), self.f["body"], 34, ink,
+                                bold=True, align="START", valign="TOP")
+            self.apply_marks(tid, marks, dark, self.f["body"], 34, True)
+            items = s.get("items", [])
+            y0, step = 0.34, min(0.11, 0.52 / max(len(items), 1))
+            for j, it in enumerate(items):
+                yy = int(PAGE_H * (y0 + j * step))
+                self.text_box(page, f"{j + 1:02d}", int(PAGE_W * 0.10), yy, int(PAGE_W * 0.06),
+                              int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 14,
+                              self.c["dark_muted"] if dark else muted, align="START", valign="TOP")
+                self.text_box(page, it, int(PAGE_W * 0.18), yy, int(PAGE_W * 0.74),
+                              int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 16, ink,
+                              align="START", valign="TOP")
         elif t == "quote":
             cx, cy = pct(0.14, 0.30)
             cw, ch = pct(0.72, 0.40)
@@ -350,6 +438,52 @@ class Deck:
                     nw = int(PAGE_W * 0.18)
                     self.text_box(page, st["note"], cx - nw // 2, ly - int(PAGE_H * 0.14), nw,
                                   int(PAGE_H * 0.09), self.f["body"], 13, self.c["dark_muted"])
+        elif t == "quadrant":
+            # cross-graph: two double-arrow axes with labeled ends; items are
+            # placed per quadrant. Split shows bare axes first, then one item
+            # per slide. Light background (Tom's pattern).
+            axes = s.get("axes", {})
+            cxp, cyp = 0.5, 0.52
+            vx, vy0, vy1 = int(PAGE_W * cxp), int(PAGE_H * 0.16), int(PAGE_H * 0.80)
+            hx0, hx1, hy = int(PAGE_W * 0.16), int(PAGE_W * 0.84), int(PAGE_H * cyp)
+            for (x0, y0, w0, h0) in [(vx, vy0, 1, vy1 - vy0), (hx0, hy, hx1 - hx0, 1)]:
+                lid = self.uid("l")
+                self.reqs += [
+                    {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
+                                    "elementProperties": {"pageObjectId": page,
+                                                          "size": {"width": {"magnitude": max(w0, 1), "unit": "EMU"},
+                                                                   "height": {"magnitude": max(h0, 1), "unit": "EMU"}},
+                                                          "transform": {"scaleX": 1, "scaleY": 1, "translateX": x0,
+                                                                        "translateY": y0, "unit": "EMU"}}}},
+                    {"updateLineProperties": {"objectId": lid,
+                                              "lineProperties": {
+                                                  "lineFill": {"solidFill": {"color": {"rgbColor": rgb(muted)}}},
+                                                  "weight": {"magnitude": 2, "unit": "PT"},
+                                                  "startArrow": "FILL_ARROW", "endArrow": "FILL_ARROW"},
+                                              "fields": "lineFill.solidFill.color,weight,startArrow,endArrow"}},
+                ]
+            lbl = self.f["body"]
+            for key, (lx, ly, lw, al) in {
+                    "top": (0.30, 0.085, 0.40, "CENTER"), "bottom": (0.30, 0.815, 0.40, "CENTER"),
+                    "left": (0.015, cyp - 0.035, 0.13, "END"), "right": (0.855, cyp - 0.035, 0.13, "START")}.items():
+                if axes.get(key):
+                    self.text_box(page, axes[key], int(PAGE_W * lx), int(PAGE_H * ly),
+                                  int(PAGE_W * lw), int(PAGE_H * 0.07), lbl, 16,
+                                  self.c.get("ink_faint", muted), bold=True, align=al)
+            slots = {"tl": (0.26, 0.30), "tr": (0.72, 0.30), "bl": (0.26, 0.72), "br": (0.72, 0.72)}
+            used = {}
+            for it in s.get("items", []):
+                q = it.get("q", "tl")
+                n = used.get(q, 0)
+                used[q] = n + 1
+                qx, qy = it.get("x"), it.get("y")
+                if qx is None:
+                    qx, qy = slots.get(q, (0.5, 0.5))
+                    qx += (n % 2) * 0.11 - 0.05
+                    qy += (n // 2) * 0.16 - 0.06
+                self.text_box(page, it.get("text", ""), int(PAGE_W * (qx - 0.10)), int(PAGE_H * (qy - 0.07)),
+                              int(PAGE_W * 0.20), int(PAGE_H * 0.14), self.f["body"], 13, ink,
+                              align="START", valign="MIDDLE", line_spacing=125)
         elif t == "visual":
             x, y = pct(0.10, 0.40)
             w, h = pct(0.80, 0.20)
@@ -390,6 +524,8 @@ def main():
                  "dark_muted": "#A3A29B", "accent_soft": c.get("accent", "#EEEEEE"),
                  "accent_text_light": c.get("accent", "#333333")}.items():
         c.setdefault(k, v)
+    c.setdefault("watermark_dark", c["dark_surface"])
+    c.setdefault("ink_faint", c["muted"])
     brand.setdefault("fonts", {}).setdefault("mono", "JetBrains Mono")
 
     s = requests.Session()

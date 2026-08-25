@@ -39,6 +39,8 @@ Copy `templates/intake-worksheet.md` to `{workspace}/{workshop-slug}/worksheet.m
 - How chapters (3–5 chapters, up to 7 max) — each with rough notes AND one metaphor, story, or visual
 - The Now asset (worksheet, prompt, tool, sheet — the tangible walk-away)
 
+**Naming:** after the worksheet (and again after the interview if a better mechanism emerged), generate 7–10 name candidates across the angles in `references/naming.md`; the expert picks or remixes. The chosen name + one-line promise become the cover slide.
+
 ## Phase 2 — Extraction Interview
 
 Follow `references/interview-guide.md`. Interview the expert **one question at a time** to extract everything they know about the topic. They talk, you organize. Benchmark: roughly 8,000–10,000 words of raw expert answers before outlining. Going straight to generation without this produces garbage — the interview is where the expert's real knowledge enters the system.

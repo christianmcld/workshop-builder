@@ -28,6 +28,7 @@ Then ask Claude to "build a workshop" — it will run onboarding the first time.
 ```
 SKILL.md                                   the skill entry point (5 phases)
 references/why-what-how-now.md             the lesson structure + slide philosophy
+references/naming.md                       workshop naming: 6 angles + rules
 references/interview-guide.md              extraction interview protocol
 references/slide-platforms.md              per-platform build paths
 references/google-slides-generation.md     Slides API builder: setup, schema, rules
@@ -35,7 +36,9 @@ references/deck-design-system.md           the rendered layout system + hard-won
 references/delivery-playbook.md            open/engage/Q&A/close + recording redundancy
 templates/brand-tokens.template.json       per-user brand environment file
 templates/intake-worksheet.md              the pre-interview worksheet
+templates/deck-style-template.json         one slide of every pattern (the seed deck)
 scripts/build_deck.py                      Google Slides deck builder (uv run)
+scripts/split_deck.py                      slide splitting: concepts -> progressive reveals
 ```
 
 ## Credits

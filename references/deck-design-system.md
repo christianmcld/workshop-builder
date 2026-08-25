@@ -33,6 +33,17 @@ Statement extras (use sparingly, ~1 per 10 slides):
 - `"kicker": "— The Setup"` — mono-font caps eyebrow in accent above the statement (the "— IN 2024" pattern).
 - `[[accent phrase]]` inside `text` — on dark slides the span renders in the accent color; on light slides it renders as ink text on an accent HIGHLIGHT (text background). Accent-colored text never appears on light backgrounds. Kickers get the same treatment.
 
+## Copy voice (how the sentences are written)
+
+Distilled from studying full Time to Build decks; blend with the expert's own voice profile before writing final copy.
+
+- **The three-beat slide:** mono kicker sets up ("— THANKFULLY") → bold line delivers ("You guys can learn from my mistakes") → mono sub lands the twist ("So this will not happen to you."). The sub COMPLETES or SUBVERTS the headline — never repeats it.
+- **Binary stakes:** small setup line, big payoff line, emotional half in serif italic ("You either add, track and optimize those steps / Or you don't {{have a business}}.").
+- **False beliefs go in quotation marks** and get answered in the sub ("\"I need 10x ROAS to scale.\" / You don't.").
+- **Stories are told in first-person slide titles** ("In 2024 I had a winner", "Here was my fancy new funnel") — the deck IS the narration.
+- One thought per slide; build a sentence across 2–3 slides for emphasis. Short words. Specific numbers over adjectives. Speak TO the room ("you"), not about a topic.
+- Riff prompts, timing cues, and the stories behind each line live in speaker notes, never on the slide.
+
 ## Light/dark rhythm
 
 Light slides teach (statements, lists, checklists, quotes). Dark slides bookend and carry the visual weight: cover, closing, frameworks, timelines, and all `visual` placeholders. Mixing modes is deliberate — a dark slide after a light run is itself a re-engagement.

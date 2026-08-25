@@ -44,6 +44,16 @@ Distilled from studying full Time to Build decks; blend with the expert's own vo
 - One thought per slide; build a sentence across 2–3 slides for emphasis. Short words. Specific numbers over adjectives. Speak TO the room ("you"), not about a topic.
 - Riff prompts, timing cues, and the stories behind each line live in speaker notes, never on the slide.
 
+## The three registers (light / dark / tone)
+
+Professional decks run THREE color registers, not two (the Time to Build pattern: cream, near-black, and deep green with gold accents):
+
+- **light** — paper background. The teaching register: statements, lists, checklists, quotes.
+- **dark** — near-black. The drama register: cover, closing, impact, chapters, stories.
+- **tone** — the brand's deep mid-color (`tone_*` tokens: a dark, desaturated relative of the accent — deep moss for a lime brand, deep green for Tom). The structure register: `numbered` defaults here; timelines and frameworks sit well here too. Serif-italic `{{...}}` spans render in `tone_serif` (the "gold" of the brand — a soft warm derivative of the accent).
+
+Set per slide with `"mode": "light" | "dark" | "tone"`. Cycling registers between sections is itself a re-engagement device.
+
 ## Light/dark rhythm
 
 Light slides teach (statements, lists, checklists, quotes). Dark slides bookend and carry the visual weight: cover, closing, frameworks, timelines, and all `visual` placeholders. Mixing modes is deliberate — a dark slide after a light run is itself a re-engagement.

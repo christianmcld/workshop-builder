@@ -72,12 +72,20 @@
           "accent": true
         }
       ],
-      "notes": "Dark. Stages reveal one per slide on split; dots hold position via slots."
+      "notes": "Dark. Stages reveal one per slide on split; dots hold position via slots.",
+      "mode": "tone"
     },
     {
       "type": "visual",
       "text": "bespoke diagram description for the visual pass",
       "notes": "Dark placeholder. Replaced manually in the Slides editor during the visual pass."
+    },
+    {
+      "type": "statement",
+      "mode": "tone",
+      "text": "The third register: {{deep moss}}.",
+      "sub": "Serif italics go soft-lime here \u2014 the gold of this brand.",
+      "notes": "Tone mode: mid register between paper and off-black. Numbered + timelines default here."
     },
     {
       "type": "numbered",

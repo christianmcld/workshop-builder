@@ -201,7 +201,12 @@ class Deck:
 
     def apply_marks(self, tid, marks, dark, font, size, bold):
         accent_style, accent_fields = self.accent_style(dark)
-        serif_color = self.c["dark_muted"] if dark else self.c.get("ink_faint", self.c["muted"])
+        if getattr(self, "mode", None) == "tone":
+            serif_color = self.c.get("tone_serif", self.c["accent_soft"])
+        elif dark:
+            serif_color = self.c["dark_muted"]
+        else:
+            serif_color = self.c.get("ink_faint", self.c["muted"])
         for a, b, kind in marks:
             if kind == "accent":
                 style, fields = dict(accent_style), accent_fields
@@ -222,7 +227,9 @@ class Deck:
         wm = self.chrome.get("watermark") or self.chrome.get("header_wordmark", "").replace(" ", "")
         if not wm:
             return
-        color = self.c.get("watermark_dark", self.c["dark_surface"])
+        color = (self.c.get("tone_watermark", self.c.get("watermark_dark", self.c["dark_surface"]))
+                 if getattr(self, "mode", None) == "tone"
+                 else self.c.get("watermark_dark", self.c["dark_surface"]))
         self.text_box(page, wm, int(PAGE_W * 0.45), int(-PAGE_H * 0.10), int(PAGE_W * 1.30),
                       int(PAGE_H * 0.45), self.f["heading"], 130, color, bold=True,
                       align="START", valign="TOP")
@@ -233,10 +240,21 @@ class Deck:
         self.n += 1
         page = f"s{i:04d}"
         t = s.get("type", "statement")
-        dark = s["dark"] if "dark" in s else (
-            t in ("cover", "closing", "framework", "visual", "timeline", "impact", "numbered", "story")
-            or (t == "section" and bool(s.get("number"))))
-        bg = self.c["dark_background"] if dark else self.c["background"]
+        mode = s.get("mode")
+        if mode is None:
+            if "dark" in s:
+                mode = "dark" if s["dark"] else "light"
+            elif t == "numbered":
+                mode = "tone"
+            elif (t in ("cover", "closing", "framework", "visual", "timeline", "impact", "story")
+                  or (t == "section" and bool(s.get("number")))):
+                mode = "dark"
+            else:
+                mode = "light"
+        dark = mode in ("dark", "tone")
+        self.mode = mode
+        bg = {"light": self.c["background"], "dark": self.c["dark_background"],
+              "tone": self.c.get("tone_background", self.c["dark_background"])}[mode]
         self.reqs += [
             {"createSlide": {"objectId": page, "insertionIndex": i,
                              "slideLayoutReference": {"predefinedLayout": "BLANK"}}},
@@ -244,8 +262,12 @@ class Deck:
                                       "pageProperties": {"pageBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(bg)}}}},
                                       "fields": "pageBackgroundFill.solidFill.color"}},
         ]
-        ink = self.c["dark_text"] if dark else self.c["text"]
-        muted = self.c["dark_muted"] if dark else self.c["muted"]
+        if mode == "tone":
+            ink = self.c.get("tone_text", self.c["dark_text"])
+            muted = self.c.get("tone_muted", self.c["dark_muted"])
+        else:
+            ink = self.c["dark_text"] if dark else self.c["text"]
+            muted = self.c["dark_muted"] if dark else self.c["muted"]
         text = s.get("text", " ")
         sub = s.get("sub")
 
@@ -327,7 +349,7 @@ class Deck:
                 yy = int(PAGE_H * (y0 + j * step))
                 self.text_box(page, f"{j + 1:02d}", int(PAGE_W * 0.10), yy, int(PAGE_W * 0.06),
                               int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 14,
-                              self.c["dark_muted"] if dark else muted, align="START", valign="TOP")
+                              muted, align="START", valign="TOP")
                 self.text_box(page, it, int(PAGE_W * 0.18), yy, int(PAGE_W * 0.74),
                               int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 16, ink,
                               align="START", valign="TOP")
@@ -368,18 +390,18 @@ class Deck:
             # dark slide, dark-surface card: title / divider / bullets / kicker
             cx, cy = pct(0.12, 0.12)
             cw, ch = pct(0.52, 0.74)
-            self.round_rect(page, cx, cy, cw, ch, self.c["dark_surface"])
+            self.round_rect(page, cx, cy, cw, ch, self.c.get("tone_surface", self.c["dark_surface"]) if self.mode == "tone" else self.c["dark_surface"])
             pad = int(PAGE_W * 0.03)
             self.text_box(page, text, cx + pad, cy + int(PAGE_H * 0.035), cw - 2 * pad, int(PAGE_H * 0.11),
-                          self.f["body"], 26, self.c["dark_text"], bold=True, align="START", valign="TOP")
+                          self.f["body"], 26, ink, bold=True, align="START", valign="TOP")
             if s.get("bullets"):
                 self.text_box(page, "\n".join("•  " + b for b in s["bullets"]),
                               cx + pad, cy + int(PAGE_H * 0.16), cw - 2 * pad, int(PAGE_H * 0.42),
-                              self.f["body"], 15, self.c["dark_text"], align="START", valign="TOP",
+                              self.f["body"], 15, ink, align="START", valign="TOP",
                               line_spacing=150)
             if sub:
                 self.text_box(page, sub, cx + pad, cy + int(PAGE_H * 0.60), cw - 2 * pad, int(PAGE_H * 0.12),
-                              self.f["body"], 15, self.c["dark_text"], bold=True, align="START", valign="TOP")
+                              self.f["body"], 15, ink, bold=True, align="START", valign="TOP")
         elif t == "timeline":
             # dark slide: arrow line, dot per stage, chip label below, note above.
             # progressive reveal = generator emits N slides, adding one stage each.
@@ -431,13 +453,13 @@ class Deck:
                 ]
                 chip_w, chip_h = int(PAGE_W * 0.14), int(PAGE_H * 0.085)
                 self.round_rect(page, cx - chip_w // 2, ly + int(PAGE_H * 0.05), chip_w, chip_h,
-                                self.c["dark_surface"], outline=self.c["dark_muted"])
+                                self.c.get("tone_surface", self.c["dark_surface"]) if self.mode == "tone" else self.c["dark_surface"], outline=muted)
                 self.text_box(page, st.get("label", ""), cx - chip_w // 2, ly + int(PAGE_H * 0.05),
-                              chip_w, chip_h, self.f["body"], 14, self.c["dark_text"], bold=True)
+                              chip_w, chip_h, self.f["body"], 14, ink, bold=True)
                 if st.get("note"):
                     nw = int(PAGE_W * 0.18)
                     self.text_box(page, st["note"], cx - nw // 2, ly - int(PAGE_H * 0.14), nw,
-                                  int(PAGE_H * 0.09), self.f["body"], 13, self.c["dark_muted"])
+                                  int(PAGE_H * 0.09), self.f["body"], 13, muted)
         elif t == "quadrant":
             # cross-graph: two double-arrow axes with labeled ends; items are
             # placed per quadrant. Split shows bare axes first, then one item

@@ -19,7 +19,13 @@
     "dark_background": "#101010",
     "dark_surface": "#1B1B1B",
     "dark_text": "#F4F4F0",
-    "dark_muted": "#A0A09A"
+    "dark_muted": "#A0A09A",
+    "tone_background": "#1B2420",
+    "tone_surface": "#25302B",
+    "tone_text": "#F4F3EE",
+    "tone_muted": "#9FAA9F",
+    "tone_serif": "#CBB89A",
+    "tone_watermark": "#242E29"
   },
   "fonts": {
     "heading": "Montserrat",

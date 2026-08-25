@@ -226,10 +226,12 @@ class Deck:
             d = int(PAGE_H * 0.045)
             self.check_dot(page, dx, int(PAGE_H * 0.24), d)
         elif t == "section":
-            x, y = pct(0.07, 0.52)
-            w, h = pct(0.75, 0.3)
+            # singular text blocks are always centered (left-align is reserved
+            # for two-column layouts) — per Christian's design review
+            x, y = pct(0.10, 0.30)
+            w, h = pct(0.80, 0.40)
             self.text_box(page, text, x, y, w, h, self.f["heading"], 54, ink, bold=True,
-                          align="START", valign="TOP", sub=sub, sub_size=20, sub_color=muted)
+                          sub=sub, sub_size=20, sub_color=muted)
         elif t == "statement":
             if s.get("kicker"):
                 self.kicker(page, s["kicker"], dark)

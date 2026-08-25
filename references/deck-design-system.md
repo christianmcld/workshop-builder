@@ -13,7 +13,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | type | Layout | When |
 |---|---|---|
 | `cover` / `closing` | Dark background, display-font title centered, accent dot above, sub in muted | First/last slide |
-| `section` | Huge display type **lower-left** (never centered), optional sub ("Chapter 1 of 3") | Why/What/How/Now + chapter dividers |
+| `section` | Huge display type, centered, optional sub ("Chapter 1 of 3") | Why/What/How/Now + chapter dividers |
 | `statement` | Body font bold, centered, `sub` stacked lighter below | The default cue card |
 | `quote` | Soft-accent rounded card, display italic, ink text | Punchlines |
 | `list` | White rounded card, left-aligned lines | Simple enumerations |
@@ -41,6 +41,8 @@ uv run scripts/split_deck.py {workshop}/deck.json   # -> deck.split.json
 It explodes every multi-item `checklist`/`timeline`/`framework` into a progressive-reveal sequence (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
 
 ## Rules that came from real failures
+
+1. **Singular text blocks are always center-aligned, centered on the slide.** Left-aligned copy exists ONLY in two-column layouts (checklist title + pills, framework cards, list cards). Came from live design review of the first template deck.
 
 1. **Accent colors are punctuation, never text on light backgrounds.** v1 rendered quotes in accent color on paper — unreadable. Quotes are now ink-on-soft-accent-card.
 2. **Progressive reveal drives the 10–15 second rhythm.** A checklist of 5 items is FIVE slides — same layout, one new pill each. The generator duplicates the slide adding one pill at a time; the renderer just draws what it's given.

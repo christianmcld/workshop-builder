@@ -78,3 +78,5 @@ GET https://www.googleapis.com/drive/v3/files/{presentationId}/comments
 - Apply the requested change to the source `deck.json` FIRST (it stays the source of truth), then either patch the affected slides in place (`deleteObject` + re-emit that slide's requests at the same index) or rebuild fresh if changes are broad. Note a rebuild is a new file — comments live on the old one, so prefer in-place patching when comment threads matter.
 - Close the loop in the thread: `POST .../comments/{id}/replies` with what changed, and mark `resolved` — the expert sees exactly what happened to each note.
 - Skip comments already `resolved: true`.
+
+- **In-place transform gotcha:** shapes store an intrinsic size (typically 3,000,000 EMU square) and reach their real dimensions via transform SCALE. When repositioning/resizing an existing element with `updatePageElementTransform`, compute `scale = desired_EMU / intrinsic_size_EMU` from the element's reported `size` — never assume the created width/height. Verify with a fresh thumbnail after patching.

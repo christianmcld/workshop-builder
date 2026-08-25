@@ -6,6 +6,7 @@ The expert is involved at the beginning and the end; Claude fills the middle. Th
 
 - Load the user's brand/context first: brand-tokens.json, plus any master brand brief, audience/avatar, or tone-of-voice files they have.
 - Have the Phase 1 worksheet in front of you — it's the map of what to extract.
+- Prefer a LIVE interview in chat with the expert answering by voice dictation — it produces the long, raw answers this needs (the original method: a 90-minute walk, dictating).
 - Tell the expert: "I'll interview you one question at a time. Answer by voice dictation if you can (longer, rawer answers are better). I'll ask for context when I need it — don't pre-explain."
 
 ## Rules

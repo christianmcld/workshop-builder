@@ -39,6 +39,8 @@ Copy `templates/intake-worksheet.md` to `{workspace}/{workshop-slug}/worksheet.m
 - How chapters (3–5 chapters, up to 7 max) — each with rough notes AND one metaphor, story, or visual
 - The Now asset (worksheet, prompt, tool, sheet — the tangible walk-away)
 
+**Avatar deep-dive (required, before naming):** the audience line on the worksheet is not enough. Interrogate the avatar until you can write their inner monologue: what they've already tried and why it failed, what a bad week looks like, what the problem costs them (money, time, status), what they'd Google at 11pm, what they believe that's wrong, and what "solved" looks like in their words. Sources, in order: (1) 3–5 targeted questions to the expert, (2) any existing avatar/audience files in the workspace or client folder, (3) quick research into where this avatar hangs out (communities, competitor ads, comment sections) when the expert's answers are thin. Write it into the worksheet's avatar section — the Why section of the deck is built from this.
+
 **Naming:** after the worksheet (and again after the interview if a better mechanism emerged), generate 7–10 name candidates across the angles in `references/naming.md`; the expert picks or remixes. The chosen name + one-line promise become the cover slide.
 
 ## Phase 2 — Extraction Interview

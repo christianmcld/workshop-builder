@@ -38,18 +38,14 @@ If a run fails with 403/insufficient scopes or "app blocked," this setup is what
 }
 ```
 
-Slide types → styling (all colors/fonts from brand-tokens.json):
+Slide types: `cover`, `closing`, `section`, `statement`, `quote`, `list`, `checklist` (with a `"pills": [...]` array), `framework` (with `"bullets": [...]` and a `sub` kicker), `visual`. Layout, styling, and the length budgets for each are defined in `deck-design-system.md` — read it before generating any deck.json.
 
-| type | Use | Look |
-|---|---|---|
-| `cover` / `closing` | First/last slide | Accent background, big heading font, logo if URL is public |
-| `section` | Why/What/How/Now + chapter dividers | Accent background |
-| `statement` | The default cue card — one idea | Brand background, large centered heading text |
-| `list` | Checklists, steps | Left-aligned body font |
-| `quote` | Punchline lines | Accent-colored text |
-| `visual` | Placeholder for the second visual pass | Muted `[ VISUAL: … ]` marker |
+Any type can carry a smaller second line via the `sub` field. `notes` goes into speaker notes — put the riff prompts, stories, and timing cues there. The audience sees the cue card; the speaker sees the riff. Checklist example:
 
-Any type can carry a smaller second line via the `sub` field. `notes` goes into speaker notes — put the riff prompts, stories, and timing cues there. The audience sees the cue card; the speaker sees the riff.
+```json
+{ "type": "checklist", "text": "By the end of\ntoday you'll have.",
+  "pills": ["A repeatable lesson framework", "A full cue-card deck"] }
+```
 
 ## Generation Rules
 

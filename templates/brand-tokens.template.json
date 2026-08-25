@@ -12,13 +12,25 @@
     "text": "#111111",
     "accent": "#FF5A00",
     "accent_text": "#FFFFFF",
-    "muted": "#666666"
+    "muted": "#666666",
+    "surface": "#FFFFFF",
+    "border": "#E5E5E5",
+    "accent_soft": "#F2F7DE",
+    "dark_background": "#101010",
+    "dark_surface": "#1B1B1B",
+    "dark_text": "#F4F4F0",
+    "dark_muted": "#A0A09A"
   },
   "fonts": {
     "heading": "Montserrat",
     "body": "Inter",
-    "note": "Must be Google Fonts family names — the Slides API resolves them by name."
+    "note": "Must be Google Fonts family names \u2014 the Slides API resolves them by name.",
+    "handwritten": "Caveat"
   },
   "style_notes": "Overall visual feel: minimal / bold / warm / editorial etc. Border radius, photography style, anything that guides the visual pass.",
-  "voice_notes": "How this brand talks. Pull from client tone files if they exist — never invent."
+  "voice_notes": "How this brand talks. Pull from client tone files if they exist \u2014 never invent.",
+  "chrome": {
+    "header_wordmark": "B R A N D  N A M E",
+    "footer_signature": "founder name"
+  }
 }

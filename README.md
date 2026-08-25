@@ -31,6 +31,7 @@ references/why-what-how-now.md             the lesson structure + slide philosop
 references/interview-guide.md              extraction interview protocol
 references/slide-platforms.md              per-platform build paths
 references/google-slides-generation.md     Slides API builder: setup, schema, rules
+references/deck-design-system.md           the rendered layout system + hard-won rules
 references/delivery-playbook.md            open/engage/Q&A/close + recording redundancy
 templates/brand-tokens.template.json       per-user brand environment file
 templates/intake-worksheet.md              the pre-interview worksheet

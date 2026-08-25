@@ -1,0 +1,22 @@
+{
+  "title": "STYLE TEMPLATE — one slide of every pattern (concept form; run split_deck.py before building)",
+  "slides": [
+    { "type": "cover", "text": "Workshop Title", "sub": "One-line promise under 60 chars", "notes": "Opening line, scripted, same every time." },
+    { "type": "section", "text": "Why", "notes": "Section divider. Re-engage beat in notes." },
+    { "type": "statement", "text": "One idea. Under 60 characters.", "notes": "Riff prompt for the speaker." },
+    { "type": "statement", "kicker": "— The Setup", "text": "A statement with [[the key phrase]] accented.", "sub": "Optional lighter sub-line.", "notes": "Kicker = mono caps eyebrow. [[..]] = accent span. Use ~1 per 10 slides." },
+    { "type": "quote", "text": "\"Punchlines live on soft-accent cards.\"" },
+    { "type": "checklist", "text": "By the end of\ntoday you'll have.", "pills": ["First outcome, under 55 chars", "Second outcome", "Third outcome"], "notes": "CONCEPT SLIDE: full list. split_deck.py explodes it into one-pill-at-a-time reveals." },
+    { "type": "framework", "text": "The Named Framework", "bullets": ["Part one — short", "Part two — short", "Part three — short"], "sub": "Bold kicker line.\nTwo lines max.", "notes": "Dark card. Bullets reveal on split." },
+    { "type": "timeline", "kicker": "— How it compounds", "text": "The compounding curve", "stages": [
+        { "label": "Week 1", "note": "1 lesson" },
+        { "label": "Month 1", "note": "+4 lessons" },
+        { "label": "Month 6", "note": "+24 lessons" },
+        { "label": "Year 2", "note": "+96 lessons", "accent": true }
+      ], "notes": "Dark. Stages reveal one per slide on split; dots hold position via slots." },
+    { "type": "visual", "text": "bespoke diagram description for the visual pass", "notes": "Dark placeholder. Replaced manually in the Slides editor during the visual pass." },
+    { "type": "section", "text": "Now" },
+    { "type": "statement", "text": "Tonight: do the one thing.", "sub": "The Now asset, named." },
+    { "type": "closing", "text": "Sign-off line", "sub": "Where to go next", "notes": "Q&A pre-frame in notes." }
+  ]
+}

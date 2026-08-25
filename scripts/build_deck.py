@@ -47,6 +47,25 @@ def pct(w, h):  # page-relative EMU
     return int(PAGE_W * w), int(PAGE_H * h)
 
 
+def parse_spans(text):
+    """Strip [[accent]] markers; return (clean_text, [(start, end), ...])."""
+    clean, spans, i = "", [], 0
+    while True:
+        a = text.find("[[", i)
+        if a < 0:
+            clean += text[i:]
+            break
+        b = text.find("]]", a)
+        if b < 0:
+            clean += text[i:]
+            break
+        clean += text[i:a]
+        spans.append((len(clean), len(clean) + b - a - 2))
+        clean += text[a + 2:b]
+        i = b + 2
+    return clean, spans
+
+
 class Deck:
     def __init__(self, brand):
         self.b = brand
@@ -160,13 +179,31 @@ class Deck:
             self.text_box(page, fs, x, int(PAGE_H * 0.905), w, int(PAGE_H * 0.07),
                           self.f.get("handwritten", self.f["body"]), 20, muted)
 
+    def accent_text(self, dark):
+        """Accent used AS text: pure accent on dark, darker accent on light."""
+        return self.c["accent"] if dark else self.c.get("accent_text_light", self.c["accent"])
+
+    def kicker(self, page, text, dark, y=0.20):
+        x, _ = pct(0.10, 0)
+        w, _ = pct(0.80, 0)
+        self.text_box(page, text.upper(), x, int(PAGE_H * y), w, int(PAGE_H * 0.06),
+                      self.f.get("mono", self.f["body"]), 13, self.accent_text(dark), bold=True)
+
+    def accent_spans(self, tid, spans, dark, font, size, bold):
+        for a, b in spans:
+            self.reqs.append({"updateTextStyle": {
+                "objectId": tid, "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
+                "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"}, "bold": bold,
+                          "foregroundColor": {"opaqueColor": {"rgbColor": rgb(self.accent_text(dark))}}},
+                "fields": "fontFamily,fontSize,bold,foregroundColor"}})
+
     # ---- slide types -------------------------------------------------------
     def add_slide(self, s):
         i = self.n
         self.n += 1
         page = f"s{i:04d}"
         t = s.get("type", "statement")
-        dark = t in ("cover", "closing", "framework") or s.get("dark", False)
+        dark = s["dark"] if "dark" in s else t in ("cover", "closing", "framework", "visual", "timeline")
         bg = self.c["dark_background"] if dark else self.c["background"]
         self.reqs += [
             {"createSlide": {"objectId": page, "insertionIndex": i,
@@ -194,10 +231,14 @@ class Deck:
             self.text_box(page, text, x, y, w, h, self.f["heading"], 54, ink, bold=True,
                           align="START", valign="TOP", sub=sub, sub_size=20, sub_color=muted)
         elif t == "statement":
+            if s.get("kicker"):
+                self.kicker(page, s["kicker"], dark)
+            clean, spans = parse_spans(text)
             x, y = pct(0.10, 0.30)
             w, h = pct(0.80, 0.40)
-            self.text_box(page, text, x, y, w, h, self.f["body"], 32, ink, bold=True,
-                          line_spacing=115, sub=sub, sub_size=19, sub_color=muted)
+            tid = self.text_box(page, clean, x, y, w, h, self.f["body"], 32, ink, bold=True,
+                                line_spacing=115, sub=sub, sub_size=19, sub_color=muted)
+            self.accent_spans(tid, spans, dark, self.f["body"], 32, True)
         elif t == "quote":
             cx, cy = pct(0.14, 0.30)
             cw, ch = pct(0.72, 0.40)
@@ -247,6 +288,64 @@ class Deck:
             if sub:
                 self.text_box(page, sub, cx + pad, cy + int(PAGE_H * 0.60), cw - 2 * pad, int(PAGE_H * 0.12),
                               self.f["body"], 15, self.c["dark_text"], bold=True, align="START", valign="TOP")
+        elif t == "timeline":
+            # dark slide: arrow line, dot per stage, chip label below, note above.
+            # progressive reveal = generator emits N slides, adding one stage each.
+            if s.get("kicker"):
+                self.kicker(page, s["kicker"], dark, y=0.10)
+            if text.strip():
+                x, _ = pct(0.08, 0)
+                w, _ = pct(0.84, 0)
+                self.text_box(page, text, x, int(PAGE_H * 0.16), w, int(PAGE_H * 0.12),
+                              self.f["body"], 26, ink, bold=True, align="START")
+            stages = s.get("stages", [])
+            lid = self.uid("l")
+            ly = int(PAGE_H * 0.62)
+            lx, lw = int(PAGE_W * 0.08), int(PAGE_W * 0.84)
+            self.reqs += [
+                {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
+                                "elementProperties": {"pageObjectId": page,
+                                                      "size": {"width": {"magnitude": lw, "unit": "EMU"},
+                                                               "height": {"magnitude": 1, "unit": "EMU"}},
+                                                      "transform": {"scaleX": 1, "scaleY": 1, "translateX": lx,
+                                                                    "translateY": ly, "unit": "EMU"}}}},
+                {"updateLineProperties": {"objectId": lid,
+                                          "lineProperties": {
+                                              "lineFill": {"solidFill": {"color": {"rgbColor": rgb(ink)}}},
+                                              "weight": {"magnitude": 2, "unit": "PT"},
+                                              "endArrow": "FILL_ARROW"},
+                                          "fields": "lineFill.solidFill.color,weight,endArrow"}},
+            ]
+            slots = max(len(stages), s.get("slots", len(stages)) or 1)
+            step = lw / (slots + 0.4)
+            for j, st in enumerate(stages):
+                cx = lx + int(step * (j + 0.55))
+                d = int(PAGE_H * 0.032)
+                did = self.uid("p")
+                self.reqs += [
+                    {"createShape": {"objectId": did, "shapeType": "ELLIPSE",
+                                     "elementProperties": {"pageObjectId": page,
+                                                           "size": {"width": {"magnitude": d, "unit": "EMU"},
+                                                                    "height": {"magnitude": d, "unit": "EMU"}},
+                                                           "transform": {"scaleX": 1, "scaleY": 1,
+                                                                         "translateX": cx - d // 2,
+                                                                         "translateY": ly - d // 2, "unit": "EMU"}}}},
+                    {"updateShapeProperties": {"objectId": did,
+                                               "shapeProperties": {
+                                                   "shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(
+                                                       self.c["accent"] if st.get("accent") else ink)}}},
+                                                   "outline": {"propertyState": "NOT_RENDERED"}},
+                                               "fields": "shapeBackgroundFill.solidFill.color,outline"}},
+                ]
+                chip_w, chip_h = int(PAGE_W * 0.14), int(PAGE_H * 0.085)
+                self.round_rect(page, cx - chip_w // 2, ly + int(PAGE_H * 0.05), chip_w, chip_h,
+                                self.c["dark_surface"], outline=self.c["dark_muted"])
+                self.text_box(page, st.get("label", ""), cx - chip_w // 2, ly + int(PAGE_H * 0.05),
+                              chip_w, chip_h, self.f["body"], 14, self.c["dark_text"], bold=True)
+                if st.get("note"):
+                    nw = int(PAGE_W * 0.18)
+                    self.text_box(page, st["note"], cx - nw // 2, ly - int(PAGE_H * 0.14), nw,
+                                  int(PAGE_H * 0.09), self.f["body"], 13, self.c["dark_muted"])
         elif t == "visual":
             x, y = pct(0.10, 0.40)
             w, h = pct(0.80, 0.20)
@@ -284,8 +383,10 @@ def main():
                  "dark_background": c.get("text", "#111111"),
                  "dark_surface": c.get("text", "#181818"),
                  "dark_text": c.get("background", "#F4F4F4"),
-                 "dark_muted": "#A3A29B", "accent_soft": c.get("accent", "#EEEEEE")}.items():
+                 "dark_muted": "#A3A29B", "accent_soft": c.get("accent", "#EEEEEE"),
+                 "accent_text_light": c.get("accent", "#333333")}.items():
         c.setdefault(k, v)
+    brand.setdefault("fonts", {}).setdefault("mono", "JetBrains Mono")
 
     s = requests.Session()
     s.headers["Authorization"] = f"Bearer {token()}"

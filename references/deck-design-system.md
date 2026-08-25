@@ -19,7 +19,26 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `list` | White rounded card, left-aligned lines | Simple enumerations |
 | `checklist` | Big title left third + rounded pill cards right, each with an accent check dot | Outcome lists, "by the end of today" |
 | `framework` | Dark slide, dark-surface rounded card: title / bullets / bold kicker (`sub`) | Named systems and models |
-| `visual` | Muted `[ VISUAL: … ]` placeholder | Second-pass artwork slots |
+| `timeline` | Dark slide: arrow line, stage dots, chip labels below, notes above; optional `"accent": true` on the payoff stage | Journeys, compounding, phased concepts |
+| `visual` | Dark slide, muted `[ VISUAL: … ]` placeholder | Second-pass artwork slots |
+
+Statement extras (use sparingly, ~1 per 10 slides):
+- `"kicker": "— The Setup"` — mono-font caps eyebrow in accent above the statement (the "— IN 2024" pattern).
+- `[[accent phrase]]` inside `text` — that span renders in accent. On light slides this uses `accent_text_light` (a darker accent derivative); pure accent is a text color ONLY on dark. Both from brand-tokens.
+
+## Light/dark rhythm
+
+Light slides teach (statements, lists, checklists, quotes). Dark slides bookend and carry the visual weight: cover, closing, frameworks, timelines, and all `visual` placeholders. Mixing modes is deliberate — a dark slide after a light run is itself a re-engagement.
+
+## Slide splitting (sub-skill — the LAST step)
+
+Author and review the deck in **concept form**: the full checklist, full timeline, full framework each on ONE slide, so the client can approve whole ideas. Only after concepts are approved, run:
+
+```bash
+uv run scripts/split_deck.py {workshop}/deck.json   # -> deck.split.json
+```
+
+It explodes every multi-item `checklist`/`timeline`/`framework` into a progressive-reveal sequence (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
 
 ## Rules that came from real failures
 

@@ -19,13 +19,15 @@
     "dark_background": "#101010",
     "dark_surface": "#1B1B1B",
     "dark_text": "#F4F4F0",
-    "dark_muted": "#A0A09A"
+    "dark_muted": "#A0A09A",
+    "accent_text_light": "#B34400"
   },
   "fonts": {
     "heading": "Montserrat",
     "body": "Inter",
     "note": "Must be Google Fonts family names \u2014 the Slides API resolves them by name.",
-    "handwritten": "Caveat"
+    "handwritten": "Caveat",
+    "mono": "JetBrains Mono"
   },
   "style_notes": "Overall visual feel: minimal / bold / warm / editorial etc. Border radius, photography style, anything that guides the visual pass.",
   "voice_notes": "How this brand talks. Pull from client tone files if they exist \u2014 never invent.",

@@ -54,7 +54,9 @@ Follow `references/why-what-how-now.md`. Map the interview material onto the mat
 | How | 60–80+ | Body — systems, frameworks, processes (3–5 chapters) |
 | Now | 5–10 | Action — the immediate implementation step |
 
-Produce `{workspace}/{workshop-slug}/outline.md` (human-readable full lesson outline) and `deck.json` (slide-by-slide, schema in `references/google-slides-generation.md`). Write speaker riff notes into each slide's `notes`. Get the expert's eyes on `outline.md` before building the deck.
+Produce `{workspace}/{workshop-slug}/outline.md` (human-readable full lesson outline) and `deck.json` in **concept form** — full checklists, timelines, and frameworks each on one slide (schema: `references/google-slides-generation.md`; layout + style: `references/deck-design-system.md`; start from `templates/deck-style-template.json`). Write speaker riff notes into each slide's `notes`. Get the expert's approval on the concepts before anything else.
+
+**Phase 3.5 — Slide splitting (last step before build, only after concept approval):** run `uv run scripts/split_deck.py deck.json` to explode approved concept slides into progressive-reveal sequences (one new item per slide). Build from the resulting `deck.split.json`.
 
 ## Phase 4 — Build Deliverables
 

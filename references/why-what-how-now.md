@@ -23,7 +23,7 @@ The specific outcome. The cognitive side of the intro: "not only do I want this,
 
 The meat and potatoes. The systems, frameworks, and processes. The entire value of the lesson.
 
-- 3–5 chapters (7 absolute max).
+- 3 core concepts is the sweet spot (5 rarely; 7 absolute max). Sub-beats nest inside a concept rather than becoming extra chapters.
 - For EVERY chapter: explain what you're teaching AND attach it to a metaphor, story, or visual. (Matrix diagram for structure; Alex Hormozi's 1,250-slides-in-90-minutes story for slide philosophy; the software/hardware flowchart for tech.)
 - Re-engage between chapters: stop, ask "how's everyone feeling? thumbs up?" — it re-engages the room and gives the speaker a beat to reset.
 

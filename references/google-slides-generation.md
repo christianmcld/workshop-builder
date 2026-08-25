@@ -64,3 +64,17 @@ uv run scripts/build_deck.py {workshop}/deck.json --brand {workspace}/brand-toke
 Prints `N slides -> https://docs.google.com/presentation/d/...`. Save the URL to `{workshop}/deck-url.txt` and open it in the browser so the user sees it immediately. Spot-check: brand colors on dividers, fonts applied (must be Google Fonts family names), notes present, slide count matches the budget.
 
 Limits worth knowing: batchUpdate is chunked at 100 requests (a slide ≈ 7–9 requests, so ~12 slides per chunk); 429/5xx get retried with backoff; a 200-slide deck builds in under a minute.
+
+## Comment-Driven Revision Loop
+
+The expert can leave comments directly on deck slides in Google Slides; read them with the Drive API (already in scope):
+
+```
+GET https://www.googleapis.com/drive/v3/files/{presentationId}/comments
+    ?fields=comments(id,content,anchor,resolved,author(displayName),quotedFileContent,replies(content))&pageSize=100
+```
+
+- Map each comment to its slide via `anchor` (slide objectIds are deterministic: `s0000`, `s0001`, …) and `quotedFileContent` (the text they highlighted). If both are ambiguous, the slide's content usually disambiguates.
+- Apply the requested change to the source `deck.json` FIRST (it stays the source of truth), then either patch the affected slides in place (`deleteObject` + re-emit that slide's requests at the same index) or rebuild fresh if changes are broad. Note a rebuild is a new file — comments live on the old one, so prefer in-place patching when comment threads matter.
+- Close the loop in the thread: `POST .../comments/{id}/replies` with what changed, and mark `resolved` — the expert sees exactly what happened to each note.
+- Skip comments already `resolved: true`.

@@ -17,14 +17,14 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `statement` | Body font bold, centered, `sub` stacked lighter below | The default cue card |
 | `quote` | Soft-accent rounded card, display italic, ink text | Punchlines |
 | `list` | White rounded card, left-aligned lines | Simple enumerations |
-| `checklist` | Big title left third + rounded pill cards right, each with an accent check dot | Outcome lists, "by the end of today" |
+| `checklist` | Big title left third + rounded pill cards right, each with a plain accent dot (no glyph) | Outcome lists, "by the end of today" |
 | `framework` | Dark slide, dark-surface rounded card: title / bullets / bold kicker (`sub`) | Named systems and models |
 | `timeline` | Dark slide: arrow line, stage dots, chip labels below, notes above; optional `"accent": true` on the payoff stage | Journeys, compounding, phased concepts |
 | `visual` | Dark slide, muted `[ VISUAL: … ]` placeholder | Second-pass artwork slots |
 
 Statement extras (use sparingly, ~1 per 10 slides):
 - `"kicker": "— The Setup"` — mono-font caps eyebrow in accent above the statement (the "— IN 2024" pattern).
-- `[[accent phrase]]` inside `text` — that span renders in accent. On light slides this uses `accent_text_light` (a darker accent derivative); pure accent is a text color ONLY on dark. Both from brand-tokens.
+- `[[accent phrase]]` inside `text` — on dark slides the span renders in the accent color; on light slides it renders as ink text on an accent HIGHLIGHT (text background). Accent-colored text never appears on light backgrounds. Kickers get the same treatment.
 
 ## Light/dark rhythm
 
@@ -42,7 +42,7 @@ It explodes every multi-item `checklist`/`timeline`/`framework` into a progressi
 
 ## Rules that came from real failures
 
-1. **Singular text blocks are always center-aligned, centered on the slide.** Left-aligned copy exists ONLY in two-column layouts (checklist title + pills, framework cards, list cards). Came from live design review of the first template deck.
+1. **Singular text blocks are always center-aligned, centered on the slide.** Left-aligned copy exists ONLY in two-column layouts (checklist title + pills, framework cards, list cards). Came from live design review of the first template deck. Same review: pill dots carry no glyph, and the signature footer uses the speaker's proper-case name.
 
 1. **Accent colors are punctuation, never text on light backgrounds.** v1 rendered quotes in accent color on paper — unreadable. Quotes are now ink-on-soft-accent-card.
 2. **Progressive reveal drives the 10–15 second rhythm.** A checklist of 5 items is FIVE slides — same layout, one new pill each. The generator duplicates the slide adding one pill at a time; the renderer just draws what it's given.

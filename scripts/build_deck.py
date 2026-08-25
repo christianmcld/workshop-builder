@@ -152,15 +152,7 @@ class Deck:
                                            "shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(self.c["accent"])}}},
                                            "outline": {"propertyState": "NOT_RENDERED"}},
                                        "fields": "shapeBackgroundFill.solidFill.color,outline"}},
-            {"insertText": {"objectId": did, "text": "✓"}},
-            {"updateShapeProperties": {"objectId": did, "shapeProperties": {"contentAlignment": "MIDDLE"},
-                                       "fields": "contentAlignment"}},
-            {"updateTextStyle": {"objectId": did, "textRange": {"type": "ALL"},
-                                 "style": {"fontFamily": self.f["body"], "bold": True,
-                                           "fontSize": {"magnitude": 10, "unit": "PT"},
-                                           "foregroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["accent_text"])}}},
-                                 "fields": "fontFamily,bold,fontSize,foregroundColor"}},
-        ]
+        ]  # plain neon dot — no glyph (design review: checkmark off-center, dot alone is cleaner)
 
     # ---- chrome ------------------------------------------------------------
     def chrome_els(self, page, dark):
@@ -179,23 +171,33 @@ class Deck:
             self.text_box(page, fs, x, int(PAGE_H * 0.905), w, int(PAGE_H * 0.07),
                           self.f.get("handwritten", self.f["body"]), 20, muted)
 
-    def accent_text(self, dark):
-        """Accent used AS text: pure accent on dark, darker accent on light."""
-        return self.c["accent"] if dark else self.c.get("accent_text_light", self.c["accent"])
+    def accent_style(self, dark):
+        """Accent treatment for text (design review): on dark, pure accent as the
+        text color; on light, ink text on an accent highlight — never accent-
+        colored text on a light background."""
+        if dark:
+            return {"foregroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["accent"])}}}, "foregroundColor"
+        return ({"foregroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["text"])}},
+                 "backgroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["accent"])}}},
+                "foregroundColor,backgroundColor")
 
     def kicker(self, page, text, dark, y=0.20):
         x, _ = pct(0.10, 0)
         w, _ = pct(0.80, 0)
-        self.text_box(page, text.upper(), x, int(PAGE_H * y), w, int(PAGE_H * 0.06),
-                      self.f.get("mono", self.f["body"]), 13, self.accent_text(dark), bold=True)
+        base = self.c["dark_text"] if dark else self.c["text"]
+        tid = self.text_box(page, text.upper(), x, int(PAGE_H * y), w, int(PAGE_H * 0.06),
+                            self.f.get("mono", self.f["body"]), 13, base, bold=True)
+        style, fields = self.accent_style(dark)
+        self.reqs.append({"updateTextStyle": {"objectId": tid, "textRange": {"type": "ALL"},
+                                              "style": style, "fields": fields}})
 
     def accent_spans(self, tid, spans, dark, font, size, bold):
+        style, fields = self.accent_style(dark)
         for a, b in spans:
             self.reqs.append({"updateTextStyle": {
                 "objectId": tid, "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
-                "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"}, "bold": bold,
-                          "foregroundColor": {"opaqueColor": {"rgbColor": rgb(self.accent_text(dark))}}},
-                "fields": "fontFamily,fontSize,bold,foregroundColor"}})
+                "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"}, "bold": bold, **style},
+                "fields": "fontFamily,fontSize,bold," + fields}})
 
     # ---- slide types -------------------------------------------------------
     def add_slide(self, s):

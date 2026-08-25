@@ -19,8 +19,7 @@
     "dark_background": "#101010",
     "dark_surface": "#1B1B1B",
     "dark_text": "#F4F4F0",
-    "dark_muted": "#A0A09A",
-    "accent_text_light": "#B34400"
+    "dark_muted": "#A0A09A"
   },
   "fonts": {
     "heading": "Montserrat",

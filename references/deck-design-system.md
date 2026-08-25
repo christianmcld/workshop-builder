@@ -25,6 +25,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `story` | Dark: muted mono kicker, bold left headline, mono muted paragraphs below | Narrative beats inside the Why/How |
 | `impact` | Dark: bold centered statement over a giant faint watermark cropped in the top-right corner (`chrome.watermark`, `colors.watermark_dark` — slightly lighter than the background) | Hard-hitting statements; alternative to `quote` |
 | `section` + `number` | Dark chapter divider: giant faint numeral left, dash mono kicker, big bold title low-left, corner watermark | Numbered chapter opens |
+| `quotes` | Scattered rounded quote cards (optionally overlapping) with optional title — found-quote / screenshot-placeholder pages; visual pass swaps in real screenshots | Market-language pages, social proof |
 | `quadrant` | Light cross-graph: double-arrow axes with muted end labels (`axes: {top,bottom,left,right}`), items placed per quadrant (`q: tl/tr/bl/br`, optional explicit `x`/`y` fractions) | 2×2 concept maps |
 
 Dual-tone type (any `text` field): `{{phrase}}` renders in the display serif, italic, in the secondary tone (ink_faint/dark_muted) — the "Time to Build *recommended funnels*" / "In 2024 *I had a winner*" pattern. Pair one bold sans phrase with one serif italic phrase.

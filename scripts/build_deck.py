@@ -375,10 +375,12 @@ class Deck:
             pills = s.get("pills", [])
             px, _ = pct(0.46, 0)
             pw, _ = pct(0.47, 0)
-            ph = int(PAGE_H * 0.125)
-            gap = int(PAGE_H * 0.03)
-            total = len(pills) * ph + (len(pills) - 1) * gap if pills else 0
-            py = max(int(PAGE_H * 0.12), int((PAGE_H - total) / 2))
+            n = max(len(pills), 1)
+            gap = int(PAGE_H * (0.03 if n <= 4 else 0.02))
+            avail = int(PAGE_H * 0.77)  # 0.11 .. 0.88, clear of chrome
+            ph = min(int(PAGE_H * 0.125), int((avail - (n - 1) * gap) / n))
+            total = n * ph + (n - 1) * gap if pills else 0
+            py = max(int(PAGE_H * 0.11), int((PAGE_H - total) / 2))
             for p in pills:
                 self.round_rect(page, px, py, pw, ph, self.c["surface"], outline=self.c["border"])
                 d = int(PAGE_H * 0.05)
@@ -506,6 +508,32 @@ class Deck:
                 self.text_box(page, it.get("text", ""), int(PAGE_W * (qx - 0.10)), int(PAGE_H * (qy - 0.07)),
                               int(PAGE_W * 0.20), int(PAGE_H * 0.14), self.f["body"], 13, ink,
                               align="START", valign="MIDDLE", line_spacing=125)
+        elif t == "quotes":
+            # scattered quote cards (Reddit/review style): rounded, overlapping,
+            # spread across the page. Optional centered title. Cards are
+            # placeholders the visual pass can swap for real screenshots.
+            if text.strip():
+                x, _ = pct(0.15, 0)
+                w, _ = pct(0.70, 0)
+                self.text_box(page, text, x, int(PAGE_H * 0.10), w, int(PAGE_H * 0.10),
+                              self.f["body"], 22, ink, bold=True)
+            default_spots = [(0.06, 0.22), (0.52, 0.18), (0.30, 0.42), (0.64, 0.50),
+                             (0.10, 0.62), (0.44, 0.70), (0.72, 0.30)]
+            for j, it in enumerate(s.get("items", [])):
+                qx, qy = it.get("x"), it.get("y")
+                if qx is None:
+                    qx, qy = default_spots[j % len(default_spots)]
+                qw = it.get("w", 0.30)
+                qh = it.get("h", 0.17)
+                card_fill = self.c["surface"] if not dark else (
+                    self.c.get("tone_surface", self.c["dark_surface"]) if mode == "tone" else self.c["dark_surface"])
+                self.round_rect(page, int(PAGE_W * qx), int(PAGE_H * qy), int(PAGE_W * qw),
+                                int(PAGE_H * qh), card_fill,
+                                outline=self.c["border"] if not dark else None)
+                self.text_box(page, it.get("text", ""), int(PAGE_W * (qx + 0.015)), int(PAGE_H * qy),
+                              int(PAGE_W * (qw - 0.03)), int(PAGE_H * qh), self.f["body"], 12,
+                              self.c["text"] if not dark else ink, align="START", valign="MIDDLE",
+                              line_spacing=115)
         elif t == "visual":
             x, y = pct(0.10, 0.40)
             w, h = pct(0.80, 0.20)

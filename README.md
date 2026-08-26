@@ -5,13 +5,13 @@ A Claude Code skill that turns an expert's knowledge into a complete live worksh
 ## What it produces
 
 - A full lesson outline extracted from a one-question-at-a-time expert interview
-- A branded slide deck built in **your** platform of choice — Google Slides (fully automated via API), a self-contained HTML presentation on your own GitHub Pages, Figma, Gamma, Canva, or an outline handoff for Keynote/PowerPoint
+- A branded slide deck in **your** brand and **your** choice of two outputs: Google Slides (built and edited via API in your own Drive) or a self-contained HTML presentation hosted on your own GitHub Pages
 - The attendee walk-away asset (worksheet, prompt, tool)
 - A one-page delivery checklist (opening line, Q&A management, close countdown, recording redundancy)
 
-## Bring your own accounts
+## Bring your own accounts and your own brand
 
-This skill ships with **no credentials**. During onboarding it asks which slide platform you want and walks you through connecting your own account (for Google Slides: your own OAuth client in your own Google Cloud project — see [references/google-slides-generation.md](references/google-slides-generation.md)). Credentials never live in this repo or your workshop workspace.
+This skill ships with **no credentials and no default brand** — onboarding captures each user's colors, fonts, and voice into their own `brand-tokens.json`, and every deck renders in that brand. During onboarding it asks which slide platform you want and walks you through connecting your own account (for Google Slides: your own OAuth client in your own Google Cloud project — see [references/google-slides-generation.md](references/google-slides-generation.md)). Credentials never live in this repo or your workshop workspace.
 
 ## Install
 

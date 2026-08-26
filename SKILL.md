@@ -18,13 +18,14 @@ Core philosophy (never violate these):
 Before any interview or outline work, the user's environment must exist. This skill ships with **no credentials and no accounts** — every user connects their own.
 
 1. **Choose a workspace directory** for their workshops (e.g. `~/workshops/` or a client folder). Everything below lives there.
-2. **Ask which platform they want slides built in:** Google Slides, HTML on GitHub Pages (their own GitHub hosts the presentation), Figma Slides, Gamma, Canva, or an outline-only handoff (Keynote/PowerPoint). Details per platform: `references/slide-platforms.md`.
-3. **Connect their own account for that platform:**
-   - *Google Slides:* walk them through creating their own Google Cloud OAuth client and authorizing it — full steps in `references/google-slides-generation.md`. Their credentials stay in their own `~/.config/gcloud/`; this skill never stores, reads back, or transmits them.
-   - *HTML / GitHub Pages:* they authenticate the `gh` CLI on their own GitHub account (`gh auth login`); the deck publishes to a repo they own.
-   - *Figma / Gamma / Canva:* they connect the matching integration (MCP/connector) on their own account.
-   - *Outline-only:* nothing to connect.
-4. **Build the brand environment** — check for `{workspace}/brand-tokens.json`; if missing, create it:
+2. **Ask which of the TWO output formats they want** (`slides_platform` in brand-tokens):
+   - **`google-slides`** — the deck is built and edited directly in their Google Slides via the API. Best for users who live in Google Workspace and want to hand-polish in the Slides editor.
+   - **`html`** — the deck renders as a single self-contained HTML presentation, hosted on their own GitHub Pages. No Google account, no OAuth consoles; every edit is a rebuild of the file, so iteration is instant and fully scriptable.
+   Details + build commands: `references/slide-platforms.md`.
+3. **Connect their own account** (this skill ships with no credentials and no default brand):
+   - *Google Slides:* their own Google Cloud OAuth client — full steps in `references/google-slides-generation.md`. Credentials stay in their own `~/.config/gcloud/`; never stored, read back, or transmitted by this skill.
+   - *HTML:* their own GitHub via `gh auth login`; the presentation publishes to a repo they own (`scripts/publish_pages.sh`).
+4. **Build THEIR brand environment** — every user gets their own; nothing here is branded until onboarding captures it: — check for `{workspace}/brand-tokens.json`; if missing, create it:
    - Gather from their website: logo URL(s), background/text/accent colors, heading + body font families, visual style notes. Prefer any brand assets or guides they already have over scraped guesses.
    - Write `brand-tokens.json` from `templates/brand-tokens.template.json` (includes their `slides_platform` choice). Download the primary logo into `{workspace}/assets/`.
    - Show the tokens for a quick confirm before proceeding.

@@ -356,7 +356,7 @@ class Deck:
             items = s.get("items", [])
             serif_c = (self.c.get("tone_serif") if mode == "tone" else
                        (self.c["dark_muted"] if dark else self.c.get("ink_faint", self.c["muted"])))
-            y0, step = 0.34, min(0.115, 0.54 / max(len(items), 1))
+            y0, step = 0.37, min(0.11, 0.51 / max(len(items), 1))
             for j, it in enumerate(items):
                 if isinstance(it, str):
                     it = {"text": it}
@@ -364,7 +364,8 @@ class Deck:
                 self.text_box(page, f"{j + 1:02d}", int(PAGE_W * 0.10), yy, int(PAGE_W * 0.06),
                               int(PAGE_H * 0.08), self.f["heading"], 17, serif_c,
                               italic=True, align="START", valign="TOP")
-                self.text_box(page, it.get("text", ""), int(PAGE_W * 0.17), yy, int(PAGE_W * 0.45),
+                itw = 0.45 if it.get("desc") else 0.73
+                self.text_box(page, it.get("text", ""), int(PAGE_W * 0.17), yy, int(PAGE_W * itw),
                               int(PAGE_H * 0.08), self.f["body"], 17, ink,
                               bold=True, align="START", valign="TOP")
                 if it.get("desc"):
@@ -555,6 +556,77 @@ class Deck:
                 self.text_box(page, it.get("text", ""), int(PAGE_W * (qx - 0.10)), int(PAGE_H * (qy - 0.07)),
                               int(PAGE_W * 0.20), int(PAGE_H * 0.14), self.f["body"], 13, ink,
                               align="START", valign="MIDDLE", line_spacing=125)
+        elif t == "evolution":
+            # test-kill-multiply diagram, left to right: columns of dots,
+            # winners in accent, killed faint; connectors flow to the next gen
+            if s.get("kicker"):
+                self.kicker(page, s["kicker"], dark, y=0.10)
+            if text.strip():
+                x, _ = pct(0.10, 0)
+                w, _ = pct(0.80, 0)
+                self.text_box(page, text, x, int(PAGE_H * 0.16), w, int(PAGE_H * 0.10),
+                              self.f["body"], 26, ink, bold=True)
+            gens = s.get("gens", [])
+            gx0, gx1 = 0.14, 0.86
+            step_x = (gx1 - gx0) / max(len(gens) - 1, 1)
+            cy_mid = 0.56
+            d = int(PAGE_H * 0.035)
+            centers = []
+            for j, g in enumerate(gens):
+                cx = gx0 + j * step_x
+                n = g.get("count", 5)
+                win = g.get("win", 2)
+                col_h = 0.075 * (n - 1)
+                ys = [cy_mid - col_h / 2 + k * 0.075 for k in range(n)]
+                centers.append((cx, ys, win))
+                for k, yy in enumerate(ys):
+                    did = self.uid("e")
+                    color = self.c["accent"] if k < win else muted
+                    self.reqs += [
+                        {"createShape": {"objectId": did, "shapeType": "ELLIPSE",
+                                         "elementProperties": {"pageObjectId": page,
+                                                               "size": {"width": {"magnitude": d, "unit": "EMU"},
+                                                                        "height": {"magnitude": d, "unit": "EMU"}},
+                                                               "transform": {"scaleX": 1, "scaleY": 1,
+                                                                             "translateX": int(PAGE_W * cx) - d // 2,
+                                                                             "translateY": int(PAGE_H * yy) - d // 2,
+                                                                             "unit": "EMU"}}}},
+                        {"updateShapeProperties": {"objectId": did,
+                                                   "shapeProperties": {
+                                                       "shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(color)},
+                                                                                              **({} if k < win else {"alpha": 0.45})}},
+                                                       "outline": {"propertyState": "NOT_RENDERED"}},
+                                                   "fields": "shapeBackgroundFill.solidFill,outline"}},
+                    ]
+                if g.get("label"):
+                    lw = int(PAGE_W * 0.20)
+                    self.text_box(page, g["label"], int(PAGE_W * cx) - lw // 2,
+                                  int(PAGE_H * (cy_mid + col_h / 2 + 0.07)), lw, int(PAGE_H * 0.07),
+                                  self.f.get("mono", self.f["body"]), 12, muted)
+            for j in range(len(centers) - 1):
+                cx, ys, win = centers[j]
+                nx = centers[j + 1][0]
+                for k in range(win):
+                    lid = self.uid("l")
+                    x0 = int(PAGE_W * cx) + d
+                    y0l = int(PAGE_H * ys[k])
+                    x1 = int(PAGE_W * nx) - d
+                    y1l = int(PAGE_H * cy_mid)
+                    self.reqs += [
+                        {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
+                                        "elementProperties": {"pageObjectId": page,
+                                                              "size": {"width": {"magnitude": max(x1 - x0, 1), "unit": "EMU"},
+                                                                       "height": {"magnitude": max(abs(y1l - y0l), 1), "unit": "EMU"}},
+                                                              "transform": {"scaleX": 1,
+                                                                            "scaleY": 1 if y1l >= y0l else -1,
+                                                                            "translateX": x0,
+                                                                            "translateY": y0l, "unit": "EMU"}}}},
+                        {"updateLineProperties": {"objectId": lid,
+                                                  "lineProperties": {
+                                                      "lineFill": {"solidFill": {"color": {"rgbColor": rgb(muted)}, "alpha": 0.6}},
+                                                      "weight": {"magnitude": 1, "unit": "PT"}},
+                                                  "fields": "lineFill.solidFill,weight"}},
+                    ]
         elif t == "quotes":
             # scattered quote cards (Reddit/review style): rounded, overlapping,
             # spread across the page. Optional centered title. Cards are
@@ -664,15 +736,31 @@ def main():
         d.reqs.append({"deleteObject": {"objectId": default_slide}})
         batch(s, pid, d.reqs)
 
-    # notes: skip in --into mode (existing speaker notes persist; re-inserting would duplicate)
-    notes = [] if args.into else [(i, sl["notes"]) for i, sl in enumerate(deck_data["slides"]) if sl.get("notes")]
-    if notes:
-        full = s.get(f"{SLIDES}/{pid}",
-                     params={"fields": "slides(objectId,slideProperties.notesPage.notesProperties.speakerNotesObjectId)"}).json()
-        nid = {sl["objectId"]: sl["slideProperties"]["notesPage"]["notesProperties"]["speakerNotesObjectId"]
-               for sl in full["slides"]}
-        batch(s, pid, [{"insertText": {"objectId": nid[f"s{i:04d}"], "text": txt}}
-                       for i, txt in notes if f"s{i:04d}" in nid])
+    # notes second pass: in --into mode REPLACE (clear stale text, slide order may
+    # have shifted); in create mode plain insert.
+    full = s.get(f"{SLIDES}/{pid}",
+                 params={"fields": "slides(objectId,slideProperties.notesPage(notesProperties.speakerNotesObjectId,"
+                                   "pageElements(objectId,shape(text(textElements(textRun(content)))))))"}).json()
+    nreqs = []
+    for i, sl in enumerate(full.get("slides", [])):
+        if i >= len(deck_data["slides"]):
+            break
+        np_ = sl["slideProperties"]["notesPage"]
+        nid = np_["notesProperties"]["speakerNotesObjectId"]
+        cur = ""
+        for el in np_.get("pageElements", []):
+            if el["objectId"] == nid:
+                cur = "".join(te.get("textRun", {}).get("content", "")
+                              for te in el.get("shape", {}).get("text", {}).get("textElements", []))
+        new_notes = deck_data["slides"][i].get("notes", "")
+        if args.into and cur.strip() and cur.strip() != new_notes.strip():
+            nreqs.append({"deleteText": {"objectId": nid, "textRange": {"type": "ALL"}}})
+            if new_notes:
+                nreqs.append({"insertText": {"objectId": nid, "text": new_notes}})
+        elif not cur.strip() and new_notes:
+            nreqs.append({"insertText": {"objectId": nid, "text": new_notes}})
+    if nreqs:
+        batch(s, pid, nreqs)
 
     print(f"{len(deck_data['slides'])} slides -> https://docs.google.com/presentation/d/{pid}/edit")
 

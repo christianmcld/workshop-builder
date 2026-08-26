@@ -25,6 +25,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `story` | Dark: muted mono kicker, bold left headline, mono muted paragraphs below | Narrative beats inside the Why/How |
 | `impact` | Dark: bold centered statement over a giant faint watermark cropped in the top-right corner (`chrome.watermark`, `colors.watermark_dark` — slightly lighter than the background) | Hard-hitting statements; alternative to `quote` |
 | `section` + `number` | Dark chapter divider: giant faint numeral left, dash mono kicker, big bold title low-left, corner watermark | Numbered chapter opens |
+| `evolution` | Test-kill-multiply diagram: columns of dots left→right, winners in accent, killed faint, connector lines to the next generation; mono labels under columns (`gens: [{count, win, label}]`) | A/B testing ladders, iteration loops |
 | `quotes` | Scattered rounded quote cards (optionally overlapping) with optional title — found-quote / screenshot-placeholder pages; visual pass swaps in real screenshots | Market-language pages, social proof |
 | `quadrant` | Light cross-graph: double-arrow axes with muted end labels (`axes: {top,bottom,left,right}`), items placed per quadrant (`q: tl/tr/bl/br`, optional explicit `x`/`y` fractions) | 2×2 concept maps |
 
@@ -77,7 +78,8 @@ It explodes every multi-item `checklist`/`timeline`/`framework`/`quadrant` into 
 1. **Accent colors are punctuation, never text on light backgrounds.** v1 rendered quotes in accent color on paper — unreadable. Quotes are now ink-on-soft-accent-card.
 2. **Progressive reveal drives the 10–15 second rhythm.** A checklist of 5 items is FIVE slides — same layout, one new pill each. The generator duplicates the slide adding one pill at a time; the renderer just draws what it's given.
 3. **Fixed-geometry cards overflow.** Framework bullets that wrap collided with the kicker. Keep framework bullets ≤ 4, each ≤ 8 words; the kicker is anchored low with dead air between — dead air is on-style.
-4. **Length budgets prevent ugly wraps:** cover/section `sub` ≤ 60 chars; statement `text` ≤ 60 chars (≈2 lines at 32pt); pills ≤ 55 chars.
+4. **No orphan words.** A statement or dual-tone title that wraps must break at a clause boundary via an explicit \n in the copy — never let one word sit alone on line two. Check every 2-line title in QA thumbnails.
+4b. **Length budgets prevent ugly wraps:** cover/section `sub` ≤ 60 chars; statement `text` ≤ 60 chars (≈2 lines at 32pt); pills ≤ 55 chars.
 5. **Dark slides bookend, light slides teach.** Cover, closing, and frameworks are dark; everything else is paper. That contrast is the deck's pulse.
 6. **Fonts must be Google Fonts family names** — the Slides API resolves by name only (no weights beyond bold, no tracking).
 

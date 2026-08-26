@@ -730,6 +730,8 @@ def main():
         # clear elements on kept slides, re-render onto them; add/remove slides to match
         for i, sl in enumerate(deck_data["slides"]):
             if i < len(existing):
+                if sl.get("locked"):
+                    continue  # hand-built by the expert; never touch
                 page = existing[i]["objectId"]
                 for el in existing[i].get("pageElements", []):
                     d.reqs.append({"deleteObject": {"objectId": el["objectId"]}})

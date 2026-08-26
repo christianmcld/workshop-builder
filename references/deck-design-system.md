@@ -108,7 +108,7 @@ Once a deck has been shared for review, ALL subsequent changes go into THAT deck
 uv run scripts/build_deck.py deck.json --brand brand-tokens.json --into <presentationId>
 ```
 
-`--into` re-renders every slide onto the existing presentation: slide ids are preserved (comment anchors survive), each slide's elements are cleared and re-drawn, speaker notes are left untouched, and extra/missing slides are removed/appended. Only the very first build of a workshop creates a new presentation. Also: before re-rendering, check for the expert's hand-edits on the live deck (fonts, colors, layout tweaks) — they are design feedback; absorb them into the renderer/brand-tokens FIRST or the re-render will erase them.
+`--into` re-renders every slide onto the existing presentation: slide ids are preserved (comment anchors survive), each slide's elements are cleared and re-drawn, speaker notes are left untouched, and extra/missing slides are removed/appended. Only the very first build of a workshop creates a new presentation. Mark any slide the expert has hand-built with `"locked": true` in deck.json: `--into` will never clear or re-render it. Once a deck is final, prefer targeted single-slide patches over full re-renders. Also: before re-rendering, check for the expert's hand-edits on the live deck (fonts, colors, layout tweaks) — they are design feedback; absorb them into the renderer/brand-tokens FIRST or the re-render will erase them.
 
 ## QA loop (do this every build)
 

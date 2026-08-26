@@ -171,7 +171,7 @@ class Deck:
             x, _ = pct(0.25, 0)
             w, _ = pct(0.5, 0)
             self.text_box(page, hw, x, int(PAGE_H * 0.035), w, int(PAGE_H * 0.06),
-                          self.f["body"], 11, ink, bold=True)
+                          self.f.get("wordmark", self.f["body"]), 11, ink, bold=True)
         if fs:
             x, _ = pct(0.25, 0)
             w, _ = pct(0.5, 0)

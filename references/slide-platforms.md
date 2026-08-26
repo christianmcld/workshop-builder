@@ -20,6 +20,12 @@ Requires the user's Gamma account with the Gamma integration (MCP) connected. Fe
 
 Requires the user's Canva account with the Canva integration (MCP) connected. Apply brand via their Canva Brand Kit if they have one, otherwise pass brand-tokens colors/fonts in the generation instructions. Good for users who already live in Canva.
 
+## `html` (GitHub Pages)
+
+No Google account needed. `uv run scripts/build_html.py deck.split.json --brand brand-tokens.json -o site/index.html` renders the deck as ONE self-contained HTML slideshow: every layout from the design system, brand tokens as CSS variables, Google Fonts, keyboard/click navigation, speaker notes on "n", fullscreen on "f", deep links (#12).
+
+Hosting is the USER'S OWN GitHub: with their `gh` CLI authenticated, `scripts/publish_pages.sh site/ workshop-name` creates a repo under their account, pushes, enables GitHub Pages, and prints their live URL (https://THEM.github.io/workshop-name/). Re-run after rebuilds to update. Their account, their repo, their page. Presenting = open the URL and hit "f"; it also works from the raw file with no hosting at all.
+
 ## `outline-only`
 
 For Keynote/PowerPoint users or anyone who builds slides by hand. Deliver `outline.md` plus a `deck-cards.md` export: one heading per slide in order, notes as blockquotes under each. They paste/build at their own pace — this is literally the original manual workflow.

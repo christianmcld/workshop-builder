@@ -5,7 +5,7 @@ A Claude Code skill that turns an expert's knowledge into a complete live worksh
 ## What it produces
 
 - A full lesson outline extracted from a one-question-at-a-time expert interview
-- A branded slide deck built in **your** platform of choice — Google Slides (fully automated via API), Figma, Gamma, Canva, or an outline handoff for Keynote/PowerPoint
+- A branded slide deck built in **your** platform of choice — Google Slides (fully automated via API), a self-contained HTML presentation on your own GitHub Pages, Figma, Gamma, Canva, or an outline handoff for Keynote/PowerPoint
 - The attendee walk-away asset (worksheet, prompt, tool)
 - A one-page delivery checklist (opening line, Q&A management, close countdown, recording redundancy)
 
@@ -39,6 +39,8 @@ templates/intake-worksheet.md              the pre-interview worksheet
 templates/deck-style-template.json         one slide of every pattern (the seed deck)
 scripts/build_deck.py                      Google Slides deck builder (uv run)
 scripts/split_deck.py                      slide splitting: concepts -> progressive reveals
+scripts/build_html.py                      HTML slideshow builder (GitHub Pages ready)
+scripts/publish_pages.sh                   publish the HTML deck to the user's own GitHub Pages
 ```
 
 ## Credits

@@ -356,7 +356,8 @@ class Deck:
             items = s.get("items", [])
             serif_c = (self.c.get("tone_serif") if mode == "tone" else
                        (self.c["dark_muted"] if dark else self.c.get("ink_faint", self.c["muted"])))
-            y0, step = 0.37, min(0.11, 0.51 / max(len(items), 1))
+            y0 = 0.42 if "\n" in clean else 0.36  # clear air under one- or two-line titles
+            step = min(0.11, (0.88 - y0) / max(len(items), 1))
             for j, it in enumerate(items):
                 if isinstance(it, str):
                     it = {"text": it}

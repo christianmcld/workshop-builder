@@ -60,7 +60,7 @@ def main():
     slides = []
     for s in deck["slides"]:
         key = {"checklist": "pills", "timeline": "stages", "framework": "bullets",
-               "quadrant": "items"}.get(s.get("type"))
+               "quadrant": "items", "numbered": "items"}.get(s.get("type"))
         slides.extend(reveals(s, key) if key else [s])
 
     before, after = len(deck["slides"]), len(slides)

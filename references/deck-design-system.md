@@ -71,7 +71,7 @@ Author and review the deck in **concept form**: the full checklist, full timelin
 uv run scripts/split_deck.py {workshop}/deck.json   # -> deck.split.json
 ```
 
-It explodes every multi-item `checklist`/`timeline`/`framework`/`quadrant` into a progressive-reveal sequence (quadrants start from a BARE axes slide, then place one item per slide) (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
+It explodes every multi-item `checklist`/`timeline`/`framework`/`quadrant`/`numbered` into a progressive-reveal sequence (quadrants start from a BARE axes slide, then place one item per slide) (item 1, then 1–2, then 1–2–3 — the "By the end of today you'll have" pattern), keeps notes on the first slide of each run, and pins timeline dot positions. Mark a slide `"split": false` to keep it whole. Long **statements** are split during authoring, not by the script — breaking one sentence across 2–3 slides is a writing decision. Build the deck from the `.split.json`.
 
 ## Rules that came from real failures
 

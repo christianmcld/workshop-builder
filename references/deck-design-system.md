@@ -25,7 +25,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `story` | Dark: muted mono kicker, bold left headline, mono muted paragraphs below | Narrative beats inside the Why/How |
 | `impact` | Dark: bold centered statement over a giant faint watermark cropped in the top-right corner (`chrome.watermark`, `colors.watermark_dark` — slightly lighter than the background) | Hard-hitting statements; alternative to `quote` |
 | `section` + `number` | Dark chapter divider: giant faint numeral left, dash mono kicker, big bold title low-left, corner watermark | Numbered chapter opens |
-| `evolution` | Test-kill-multiply diagram: columns of dots left→right, winners in accent, killed faint, connector lines to the next generation; mono labels under columns (`gens: [{count, win, label}]`) | A/B testing ladders, iteration loops |
+| `evolution` | Test-kill-multiply diagram, split-cluster layout: each winner spawns its OWN cluster in the next generation with its own connector line (`gens: [{count, win, per_parent, label}]`); clusters auto-fit the vertical band | A/B testing ladders, iteration loops |
 | `quotes` | Scattered rounded quote cards (optionally overlapping) with optional title — found-quote / screenshot-placeholder pages; visual pass swaps in real screenshots | Market-language pages, social proof |
 | `quadrant` | Light cross-graph: double-arrow axes with muted end labels (`axes: {top,bottom,left,right}`), items placed per quadrant (`q: tl/tr/bl/br`, optional explicit `x`/`y` fractions) | 2×2 concept maps |
 

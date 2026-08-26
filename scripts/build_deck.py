@@ -558,8 +558,9 @@ class Deck:
                               int(PAGE_W * 0.20), int(PAGE_H * 0.14), self.f["body"], 13, ink,
                               align="START", valign="MIDDLE", line_spacing=125)
         elif t == "evolution":
-            # test-kill-multiply diagram, left to right: columns of dots,
-            # winners in accent, killed faint; connectors flow to the next gen
+            # test-kill-multiply, split-cluster layout (design review): each
+            # winner spawns its OWN cluster of dots in the next generation,
+            # with its own connector line. gens: [{count, win, per_parent}]
             if s.get("kicker"):
                 self.kicker(page, s["kicker"], dark, y=0.10)
             if text.strip():
@@ -568,66 +569,81 @@ class Deck:
                 self.text_box(page, text, x, int(PAGE_H * 0.16), w, int(PAGE_H * 0.10),
                               self.f["body"], 26, ink, bold=True)
             gens = s.get("gens", [])
-            gx0, gx1 = 0.14, 0.86
+            gx0, gx1 = 0.13, 0.87
             step_x = (gx1 - gx0) / max(len(gens) - 1, 1)
-            cy_mid = 0.56
-            d = int(PAGE_H * 0.035)
-            centers = []
+            d = int(PAGE_H * 0.030)
+            v_gap = 0.062
+
+            def draw_dot(cx, cy, winner):
+                did = self.uid("e")
+                self.reqs += [
+                    {"createShape": {"objectId": did, "shapeType": "ELLIPSE",
+                                     "elementProperties": {"pageObjectId": page,
+                                                           "size": {"width": {"magnitude": d, "unit": "EMU"},
+                                                                    "height": {"magnitude": d, "unit": "EMU"}},
+                                                           "transform": {"scaleX": 1, "scaleY": 1,
+                                                                         "translateX": int(PAGE_W * cx) - d // 2,
+                                                                         "translateY": int(PAGE_H * cy) - d // 2,
+                                                                         "unit": "EMU"}}}},
+                    {"updateShapeProperties": {"objectId": did,
+                                               "shapeProperties": {
+                                                   "shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(
+                                                       self.c["accent"] if winner else muted)},
+                                                       **({} if winner else {"alpha": 0.45})}},
+                                                   "outline": {"propertyState": "NOT_RENDERED"}},
+                                               "fields": "shapeBackgroundFill.solidFill,outline"}},
+                ]
+
+            def draw_line(x0, y0l, x1, y1l):
+                lid = self.uid("l")
+                self.reqs += [
+                    {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
+                                    "elementProperties": {"pageObjectId": page,
+                                                          "size": {"width": {"magnitude": max(int(PAGE_W * (x1 - x0)), 1), "unit": "EMU"},
+                                                                   "height": {"magnitude": max(int(PAGE_H * abs(y1l - y0l)), 1), "unit": "EMU"}},
+                                                          "transform": {"scaleX": 1,
+                                                                        "scaleY": 1 if y1l >= y0l else -1,
+                                                                        "translateX": int(PAGE_W * x0),
+                                                                        "translateY": int(PAGE_H * y0l), "unit": "EMU"}}}},
+                    {"updateLineProperties": {"objectId": lid,
+                                              "lineProperties": {
+                                                  "lineFill": {"solidFill": {"color": {"rgbColor": rgb(muted)}, "alpha": 0.6}},
+                                                  "weight": {"magnitude": 1, "unit": "PT"}},
+                                              "fields": "lineFill.solidFill,weight"}},
+                ]
+
+            # each entry in `parents` = (x, y) of a winner dot from the previous gen
+            parents = [None]  # gen 0: one cluster, no parent
             for j, g in enumerate(gens):
                 cx = gx0 + j * step_x
-                n = g.get("count", 5)
-                win = g.get("win", 2)
-                col_h = 0.075 * (n - 1)
-                ys = [cy_mid - col_h / 2 + k * 0.075 for k in range(n)]
-                centers.append((cx, ys, win))
-                for k, yy in enumerate(ys):
-                    did = self.uid("e")
-                    color = self.c["accent"] if k < win else muted
-                    self.reqs += [
-                        {"createShape": {"objectId": did, "shapeType": "ELLIPSE",
-                                         "elementProperties": {"pageObjectId": page,
-                                                               "size": {"width": {"magnitude": d, "unit": "EMU"},
-                                                                        "height": {"magnitude": d, "unit": "EMU"}},
-                                                               "transform": {"scaleX": 1, "scaleY": 1,
-                                                                             "translateX": int(PAGE_W * cx) - d // 2,
-                                                                             "translateY": int(PAGE_H * yy) - d // 2,
-                                                                             "unit": "EMU"}}}},
-                        {"updateShapeProperties": {"objectId": did,
-                                                   "shapeProperties": {
-                                                       "shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(color)},
-                                                                                              **({} if k < win else {"alpha": 0.45})}},
-                                                       "outline": {"propertyState": "NOT_RENDERED"}},
-                                                   "fields": "shapeBackgroundFill.solidFill,outline"}},
-                    ]
+                n, win = g.get("count", 5), g.get("win", 0)
+                clusters = parents if g.get("per_parent") and parents != [None] else [None] * (1 if parents == [None] else 1)
+                if not (g.get("per_parent") and parents != [None]):
+                    clusters = [None]
+                k_cl = len(clusters)
+                new_parents = []
+                # fit all clusters inside the 0.30..0.82 band
+                band_top, band_bot, cl_gap = 0.30, 0.82, 0.07
+                cl_h = (band_bot - band_top - (k_cl - 1) * cl_gap) / k_cl
+                gap_dyn = min(v_gap, cl_h / max(n - 1, 1))
+                for ci, parent in enumerate(clusters):
+                    c_top = band_top + ci * (cl_h + cl_gap)
+                    ccy = c_top + cl_h / 2 if k_cl > 1 else 0.56
+                    col_h = gap_dyn * (n - 1)
+                    ys = [ccy - col_h / 2 + k * gap_dyn for k in range(n)]
+                    for k, yy in enumerate(ys):
+                        winner = k < win
+                        draw_dot(cx, yy, winner)
+                        if winner:
+                            new_parents.append((cx, yy))
+                    if parent is not None:
+                        draw_line(parent[0] + 0.012, parent[1], cx - 0.018, ys[0])
+                parents = new_parents if new_parents else [None]
                 if g.get("label"):
                     lw = int(PAGE_W * 0.20)
                     self.text_box(page, g["label"], int(PAGE_W * cx) - lw // 2,
-                                  int(PAGE_H * (cy_mid + col_h / 2 + 0.07)), lw, int(PAGE_H * 0.07),
+                                  int(PAGE_H * 0.865), lw, int(PAGE_H * 0.06),
                                   self.f.get("mono", self.f["body"]), 12, muted)
-            for j in range(len(centers) - 1):
-                cx, ys, win = centers[j]
-                nx = centers[j + 1][0]
-                for k in range(win):
-                    lid = self.uid("l")
-                    x0 = int(PAGE_W * cx) + d
-                    y0l = int(PAGE_H * ys[k])
-                    x1 = int(PAGE_W * nx) - d
-                    y1l = int(PAGE_H * cy_mid)
-                    self.reqs += [
-                        {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
-                                        "elementProperties": {"pageObjectId": page,
-                                                              "size": {"width": {"magnitude": max(x1 - x0, 1), "unit": "EMU"},
-                                                                       "height": {"magnitude": max(abs(y1l - y0l), 1), "unit": "EMU"}},
-                                                              "transform": {"scaleX": 1,
-                                                                            "scaleY": 1 if y1l >= y0l else -1,
-                                                                            "translateX": x0,
-                                                                            "translateY": y0l, "unit": "EMU"}}}},
-                        {"updateLineProperties": {"objectId": lid,
-                                                  "lineProperties": {
-                                                      "lineFill": {"solidFill": {"color": {"rgbColor": rgb(muted)}, "alpha": 0.6}},
-                                                      "weight": {"magnitude": 1, "unit": "PT"}},
-                                                  "fields": "lineFill.solidFill,weight"}},
-                    ]
         elif t == "quotes":
             # scattered quote cards (Reddit/review style): rounded, overlapping,
             # spread across the page. Optional centered title. Cards are

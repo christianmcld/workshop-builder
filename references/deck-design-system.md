@@ -21,7 +21,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `framework` | Dark slide, dark-surface rounded card: title / bullets / bold kicker (`sub`) | Named systems and models |
 | `timeline` | Dark slide: arrow line, stage dots, chip labels below, notes above; optional `"accent": true` on the payoff stage | Journeys, compounding, phased concepts |
 | `visual` | Dark slide, muted `[ VISUAL: … ]` placeholder | Second-pass artwork slots |
-| `numbered` | Dark: dual-tone title + mono rows with muted `01 02 03` numerals and `→` flows | Funnel lists, option menus, step sequences |
+| `numbered` | Tone register: mono kicker, dual-tone title, serif-italic numerals, bold rows, optional right-aligned light `desc` per item, hairline dividers (the TTB agenda layout). Items: strings or `{text, desc}` | Agendas, funnel lists, step sequences |
 | `story` | Dark: muted mono kicker, bold left headline, mono muted paragraphs below | Narrative beats inside the Why/How |
 | `impact` | Dark: bold centered statement over a giant faint watermark cropped in the top-right corner (`chrome.watermark`, `colors.watermark_dark` — slightly lighter than the background) | Hard-hitting statements; alternative to `quote` |
 | `section` + `number` | Dark chapter divider: giant faint numeral left, dash mono kicker, big bold title low-left, corner watermark | Numbered chapter opens |

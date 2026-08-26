@@ -337,22 +337,51 @@ class Deck:
                               self.f.get("mono", self.f["body"]), 14, muted,
                               align="START", valign="TOP", line_spacing=170)
         elif t == "numbered":
-            # numbered flow list: dual-tone title + mono rows with muted numerals
+            # numbered agenda rows (TTB style): mono preheadline via kicker,
+            # dual-tone title, serif-italic numerals, bold rows, light
+            # right-aligned descriptors, hairline dividers between rows
+            if s.get("kicker"):
+                self.kicker(page, s["kicker"], dark, y=0.11, align="START", x=0.10, w=0.80, plain=True)
             clean, marks = parse_marks(text)
             tid = self.text_box(page, clean, int(PAGE_W * 0.10), int(PAGE_H * 0.16),
                                 int(PAGE_W * 0.80), int(PAGE_H * 0.13), self.f["body"], 34, ink,
                                 bold=True, align="START", valign="TOP")
             self.apply_marks(tid, marks, dark, self.f["body"], 34, True)
             items = s.get("items", [])
-            y0, step = 0.34, min(0.11, 0.52 / max(len(items), 1))
+            serif_c = (self.c.get("tone_serif") if mode == "tone" else
+                       (self.c["dark_muted"] if dark else self.c.get("ink_faint", self.c["muted"])))
+            y0, step = 0.34, min(0.115, 0.54 / max(len(items), 1))
             for j, it in enumerate(items):
+                if isinstance(it, str):
+                    it = {"text": it}
                 yy = int(PAGE_H * (y0 + j * step))
                 self.text_box(page, f"{j + 1:02d}", int(PAGE_W * 0.10), yy, int(PAGE_W * 0.06),
-                              int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 14,
-                              muted, align="START", valign="TOP")
-                self.text_box(page, it, int(PAGE_W * 0.18), yy, int(PAGE_W * 0.74),
-                              int(PAGE_H * 0.08), self.f.get("mono", self.f["body"]), 16, ink,
-                              align="START", valign="TOP")
+                              int(PAGE_H * 0.08), self.f["heading"], 17, serif_c,
+                              italic=True, align="START", valign="TOP")
+                self.text_box(page, it.get("text", ""), int(PAGE_W * 0.17), yy, int(PAGE_W * 0.45),
+                              int(PAGE_H * 0.08), self.f["body"], 17, ink,
+                              bold=True, align="START", valign="TOP")
+                if it.get("desc"):
+                    self.text_box(page, it["desc"], int(PAGE_W * 0.60), yy, int(PAGE_W * 0.30),
+                                  int(PAGE_H * 0.08), self.f["body"], 13, muted,
+                                  align="END", valign="TOP")
+                if j < len(items) - 1:
+                    lid = self.uid("h")
+                    self.reqs += [
+                        {"createLine": {"objectId": lid, "lineCategory": "STRAIGHT",
+                                        "elementProperties": {"pageObjectId": page,
+                                                              "size": {"width": {"magnitude": int(PAGE_W * 0.80), "unit": "EMU"},
+                                                                       "height": {"magnitude": 1, "unit": "EMU"}},
+                                                              "transform": {"scaleX": 1, "scaleY": 1,
+                                                                            "translateX": int(PAGE_W * 0.10),
+                                                                            "translateY": yy + int(PAGE_H * (step - 0.028)),
+                                                                            "unit": "EMU"}}}},
+                        {"updateLineProperties": {"objectId": lid,
+                                                  "lineProperties": {
+                                                      "lineFill": {"solidFill": {"color": {"rgbColor": rgb(muted)}, "alpha": 0.35}},
+                                                      "weight": {"magnitude": 0.5, "unit": "PT"}},
+                                                  "fields": "lineFill.solidFill,weight"}},
+                    ]
         elif t == "quote":
             cx, cy = pct(0.14, 0.30)
             cw, ch = pct(0.72, 0.40)

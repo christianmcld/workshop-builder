@@ -187,12 +187,12 @@ class Deck:
                  "backgroundColor": {"opaqueColor": {"rgbColor": rgb(self.c["accent"])}}},
                 "foregroundColor,backgroundColor")
 
-    def kicker(self, page, text, dark, y=0.20, align="CENTER", x=0.10, w=0.80, plain=False):
+    def kicker(self, page, text, dark, y=0.20, align="CENTER", x=0.10, w=0.80, plain=False, font=None):
         base = (self.c["dark_muted"] if dark else self.c["muted"]) if plain else \
                (self.c["dark_text"] if dark else self.c["text"])
         tid = self.text_box(page, text.upper(), int(PAGE_W * x), int(PAGE_H * y),
                             int(PAGE_W * w), int(PAGE_H * 0.06),
-                            self.f.get("mono", self.f["body"]), 13, base, bold=True, align=align)
+                            font or self.f.get("mono", self.f["body"]), 13, base, bold=True, align=align)
         if not plain:
             style, fields = self.accent_style(dark)
             self.reqs.append({"updateTextStyle": {"objectId": tid, "textRange": {"type": "ALL"},
@@ -275,7 +275,7 @@ class Deck:
             x, y = pct(0.08, 0.34)
             w, h = pct(0.84, 0.32)
             self.text_box(page, text, x, y, w, h, self.f["heading"], 52, ink, bold=True,
-                          sub=sub, sub_size=20, sub_color=muted)
+                          sub=sub, sub_size=20, sub_color=muted, sub_font=self.f["heading"])
             dx, _ = pct(0.485, 0)
             d = int(PAGE_H * 0.045)
             self.check_dot(page, dx, int(PAGE_H * 0.24), d)
@@ -310,7 +310,8 @@ class Deck:
             x, y = pct(0.10, 0.30)
             w, h = pct(0.80, 0.40)
             tid = self.text_box(page, clean, x, y, w, h, self.f["body"], 32, ink, bold=True,
-                                line_spacing=115, sub=sub, sub_size=19, sub_color=muted)
+                                line_spacing=115, sub=sub, sub_size=19, sub_color=muted,
+                                sub_font=self.f["heading"] if dark else None)
             self.apply_marks(tid, marks, dark, self.f["body"], 32, True)
         elif t == "impact":
             # hard-hitting statement / quote alternative: dark, giant cropped
@@ -320,12 +321,14 @@ class Deck:
             x, y = pct(0.10, 0.32)
             w, h = pct(0.80, 0.36)
             tid = self.text_box(page, clean, x, y, w, h, self.f["body"], 36, ink, bold=True,
-                                line_spacing=115, sub=sub, sub_size=18, sub_color=muted)
+                                line_spacing=115, sub=sub, sub_size=18, sub_color=muted,
+                                sub_font=self.f["heading"])
             self.apply_marks(tid, marks, dark, self.f["body"], 36, True)
         elif t == "story":
             # story beat: muted mono kicker, bold left headline, mono sub paragraphs
             if s.get("kicker"):
-                self.kicker(page, "— " + s["kicker"], dark, y=0.30, align="START", x=0.08, w=0.84, plain=True)
+                self.kicker(page, "— " + s["kicker"], dark, y=0.30, align="START", x=0.08, w=0.84,
+                            plain=True, font=self.f["heading"])
             clean, marks = parse_marks(text)
             tid = self.text_box(page, clean, int(PAGE_W * 0.08), int(PAGE_H * 0.36),
                                 int(PAGE_W * 0.84), int(PAGE_H * 0.20), self.f["body"], 30, ink,
@@ -334,7 +337,7 @@ class Deck:
             if sub:
                 self.text_box(page, sub, int(PAGE_W * 0.08), int(PAGE_H * 0.58),
                               int(PAGE_W * 0.84), int(PAGE_H * 0.28),
-                              self.f.get("mono", self.f["body"]), 14, muted,
+                              self.f["heading"], 15, muted,
                               align="START", valign="TOP", line_spacing=170)
         elif t == "numbered":
             # numbered agenda rows (TTB style): mono preheadline via kicker,

@@ -44,6 +44,7 @@ Distilled from studying full Time to Build decks; blend with the expert's own vo
 - **Stories are told in first-person slide titles** ("In 2024 I had a winner", "Here was my fancy new funnel") — the deck IS the narration.
 - One thought per slide; build a sentence across 2–3 slides for emphasis. Short words. Specific numbers over adjectives. Speak TO the room ("you"), not about a topic.
 - Riff prompts, timing cues, and the stories behind each line live in speaker notes, never on the slide.
+- **Serif subtext on accentuated dark slides** (design review): story kickers and the subtext on dark statements, impacts, covers, and stories render in the display serif (not mono) — the serif softens the drama register and separates narrative from data. Mono subtext stays on structural slides (agendas, timelines, frameworks).
 
 ## The three registers (light / dark / tone)
 

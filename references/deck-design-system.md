@@ -15,7 +15,7 @@ The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's 
 | `cover` / `closing` | Dark background, display-font title centered, accent dot above, sub in muted | First/last slide |
 | `section` | Huge display type, centered, optional sub ("Chapter 1 of 3") | Why/What/How/Now + chapter dividers |
 | `statement` | Body font bold, centered, `sub` stacked lighter below | The default cue card |
-| `quote` | Soft-accent rounded card, display italic, ink text | Punchlines |
+| `quote` | Rounded card in the secondary color, display serif bold-italic in the deep tone color, giant faint quote-echo (first words, display italic) cropped at the corners behind (`colors.quote_echo`) | Punchlines, testimonial lines |
 | `list` | White rounded card, left-aligned lines | Simple enumerations |
 | `checklist` | Big title left third + rounded pill cards right, each with a plain accent dot (no glyph) | Outcome lists, "by the end of today" |
 | `framework` | Dark slide, dark-surface rounded card: title / bullets / bold kicker (`sub`) | Named systems and models |
@@ -95,6 +95,16 @@ It explodes every multi-item `checklist`/`timeline`/`framework`/`quadrant` into 
 ```
 
 Missing dark/surface values fall back to sensible derivations of the light palette, so a minimal brand file still renders.
+
+## Editing in place (never spawn new deck versions)
+
+Once a deck has been shared for review, ALL subsequent changes go into THAT deck — comments, hand-edits, and version history live there. Use:
+
+```bash
+uv run scripts/build_deck.py deck.json --brand brand-tokens.json --into <presentationId>
+```
+
+`--into` re-renders every slide onto the existing presentation: slide ids are preserved (comment anchors survive), each slide's elements are cleared and re-drawn, speaker notes are left untouched, and extra/missing slides are removed/appended. Only the very first build of a workshop creates a new presentation. Also: before re-rendering, check for the expert's hand-edits on the live deck (fonts, colors, layout tweaks) — they are design feedback; absorb them into the renderer/brand-tokens FIRST or the re-render will erase them.
 
 ## QA loop (do this every build)
 

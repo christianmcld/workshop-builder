@@ -81,10 +81,11 @@ class Deck:
         self.reqs = []
         self.n = 0
         self._uid = 0
+        self.prefix = "el"
 
     def uid(self, tag):
         self._uid += 1
-        return f"el{self._uid:05d}{tag}"
+        return f"{self.prefix}{self._uid:05d}{tag}"
 
     # ---- low-level helpers -------------------------------------------------
     def text_box(self, page, text, x, y, w, h, font, size, color, bold=False,
@@ -237,8 +238,13 @@ class Deck:
     # ---- slide types -------------------------------------------------------
     def add_slide(self, s):
         i = self.n
-        self.n += 1
         page = f"s{i:04d}"
+        self.reqs.append({"createSlide": {"objectId": page, "insertionIndex": i,
+                                          "slideLayoutReference": {"predefinedLayout": "BLANK"}}})
+        self.render_onto(page, s, index=i)
+
+    def render_onto(self, page, s, index=0):
+        self.n = index + 1
         t = s.get("type", "statement")
         mode = s.get("mode")
         if mode is None:
@@ -255,13 +261,10 @@ class Deck:
         self.mode = mode
         bg = {"light": self.c["background"], "dark": self.c["dark_background"],
               "tone": self.c.get("tone_background", self.c["dark_background"])}[mode]
-        self.reqs += [
-            {"createSlide": {"objectId": page, "insertionIndex": i,
-                             "slideLayoutReference": {"predefinedLayout": "BLANK"}}},
+        self.reqs.append(
             {"updatePageProperties": {"objectId": page,
                                       "pageProperties": {"pageBackgroundFill": {"solidFill": {"color": {"rgbColor": rgb(bg)}}}},
-                                      "fields": "pageBackgroundFill.solidFill.color"}},
-        ]
+                                      "fields": "pageBackgroundFill.solidFill.color"}})
         if mode == "tone":
             ink = self.c.get("tone_text", self.c["dark_text"])
             muted = self.c.get("tone_muted", self.c["dark_muted"])
@@ -386,11 +389,23 @@ class Deck:
                                                   "fields": "lineFill.solidFill,weight"}},
                     ]
         elif t == "quote":
-            cx, cy = pct(0.14, 0.30)
-            cw, ch = pct(0.72, 0.40)
-            self.round_rect(page, cx, cy, cw, ch, self.c["accent_soft"])
+            # brand-example treatment: faint oversized quote-echo behind, secondary
+            # grey-blue card, deep-teal serif bold italic text
+            echo = " ".join(text.replace('"', "").split()[:2])
+            echo_c = self.c.get("quote_echo", self.c["border"])
+            self.text_box(page, '"' + echo.split()[0] if echo else "", int(PAGE_W * 0.55), int(-PAGE_H * 0.06),
+                          int(PAGE_W * 0.75), int(PAGE_H * 0.45), self.f["heading"], 150, echo_c,
+                          bold=True, italic=True, align="START", valign="TOP")
+            if len(echo.split()) > 1:
+                self.text_box(page, echo.split()[1], int(PAGE_W * 0.55), int(PAGE_H * 0.68),
+                              int(PAGE_W * 0.75), int(PAGE_H * 0.45), self.f["heading"], 150, echo_c,
+                              bold=True, italic=True, align="START", valign="TOP")
+            cx, cy = pct(0.14, 0.28)
+            cw, ch = pct(0.72, 0.44)
+            self.round_rect(page, cx, cy, cw, ch, self.c.get("secondary", self.c["accent_soft"]))
             self.text_box(page, text, cx + int(PAGE_W * 0.03), cy, cw - int(PAGE_W * 0.06), ch,
-                          self.f["heading"], 26, self.c["text"], bold=True, italic=True, line_spacing=115)
+                          self.f["heading"], 30, self.c.get("tone_background", self.c["text"]),
+                          bold=True, italic=True, line_spacing=120)
         elif t == "list":
             cx, cy = pct(0.26, 0.22)
             cw, ch = pct(0.48, 0.56)
@@ -593,6 +608,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("deck")
     ap.add_argument("--brand", required=True)
+    ap.add_argument("--into", help="existing presentation id: re-render slides IN PLACE "
+                                   "(preserves slide ids + comment history)")
     args = ap.parse_args()
 
     deck_data = json.load(open(args.deck))
@@ -612,20 +629,43 @@ def main():
 
     s = requests.Session()
     s.headers["Authorization"] = f"Bearer {token()}"
-    r = s.post(SLIDES, json={"title": deck_data.get("title", "Workshop")})
-    if not r.ok:
-        sys.exit(f"Create failed ({r.status_code}): {r.text[:600]}\nCheck OAuth setup "
-                 "(references/google-slides-generation.md).")
-    pres = r.json()
-    pid, default_slide = pres["presentationId"], pres["slides"][0]["objectId"]
+    if args.into:
+        pid = args.into
+        cur = s.get(f"{SLIDES}/{pid}", params={"fields": "slides(objectId,pageElements(objectId))"})
+        if not cur.ok:
+            sys.exit(f"Fetch failed ({cur.status_code}): {cur.text[:400]}")
+        existing = cur.json().get("slides", [])
+        d = Deck(brand)
+        # unique prefix so new element ids never collide with a previous render's
+        d.prefix = "r" + format(abs(hash(pid)) % 8999 + 1000, "d")
+        # clear elements on kept slides, re-render onto them; add/remove slides to match
+        for i, sl in enumerate(deck_data["slides"]):
+            if i < len(existing):
+                page = existing[i]["objectId"]
+                for el in existing[i].get("pageElements", []):
+                    d.reqs.append({"deleteObject": {"objectId": el["objectId"]}})
+                d.render_onto(page, sl, index=i)
+            else:
+                d.n = i
+                d.add_slide(sl)
+        for extra in existing[len(deck_data["slides"]):]:
+            d.reqs.append({"deleteObject": {"objectId": extra["objectId"]}})
+        batch(s, pid, d.reqs)
+    else:
+        r = s.post(SLIDES, json={"title": deck_data.get("title", "Workshop")})
+        if not r.ok:
+            sys.exit(f"Create failed ({r.status_code}): {r.text[:600]}\nCheck OAuth setup "
+                     "(references/google-slides-generation.md).")
+        pres = r.json()
+        pid, default_slide = pres["presentationId"], pres["slides"][0]["objectId"]
+        d = Deck(brand)
+        for sl in deck_data["slides"]:
+            d.add_slide(sl)
+        d.reqs.append({"deleteObject": {"objectId": default_slide}})
+        batch(s, pid, d.reqs)
 
-    d = Deck(brand)
-    for sl in deck_data["slides"]:
-        d.add_slide(sl)
-    d.reqs.append({"deleteObject": {"objectId": default_slide}})
-    batch(s, pid, d.reqs)
-
-    notes = [(i, sl["notes"]) for i, sl in enumerate(deck_data["slides"]) if sl.get("notes")]
+    # notes: skip in --into mode (existing speaker notes persist; re-inserting would duplicate)
+    notes = [] if args.into else [(i, sl["notes"]) for i, sl in enumerate(deck_data["slides"]) if sl.get("notes")]
     if notes:
         full = s.get(f"{SLIDES}/{pid}",
                      params={"fields": "slides(objectId,slideProperties.notesPage.notesProperties.speakerNotesObjectId)"}).json()

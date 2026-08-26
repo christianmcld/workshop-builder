@@ -83,20 +83,28 @@
     {
       "type": "statement",
       "mode": "tone",
-      "text": "The third register: {{deep moss}}.",
-      "sub": "Serif italics go soft-lime here \u2014 the gold of this brand.",
-      "notes": "Tone mode: mid register between paper and off-black. Numbered + timelines default here."
+      "text": "The third register: {{the tone color}}.",
+      "sub": "Serif italics render in tone_serif, the brand's secondary accent.",
+      "notes": "Tone mode: the brand's deep mid-color between paper and near-black. Numbered defaults here."
     },
     {
       "type": "numbered",
-      "text": "Fieldwork {{recommended funnels}}",
+      "text": "Brand {{recommended funnels}}",
       "items": [
-        "Landing page \u2192 Sale",
-        "DM \u2192 Lead magnet \u2192 Email \u2192 Sale",
-        "Low ticket workshop \u2192 Sale",
-        "Landing page \u2192 Sales call \u2192 Sale"
+        {
+          "text": "Landing page \u2192 Sale",
+          "desc": "fastest path"
+        },
+        {
+          "text": "DM \u2192 Lead magnet \u2192 Email \u2192 Sale",
+          "desc": "the nurture path"
+        },
+        {
+          "text": "Low ticket workshop \u2192 Sale",
+          "desc": "trust first"
+        }
       ],
-      "notes": "Numbered flow list. Dual-tone title: bold + {{serif italic}}."
+      "notes": "TTB agenda layout: serif numerals, bold rows, light right-aligned descs, hairline dividers. Splits one row per slide."
     },
     {
       "type": "story",
@@ -149,6 +157,54 @@
         }
       ],
       "notes": "Cross-graph CONCEPT slide: axes + all items. Split shows bare axes first, then one item per slide."
+    },
+    {
+      "type": "quotes",
+      "text": "This is what your market sounds like.",
+      "items": [
+        {
+          "text": "\"A found quote in the customer's own words.\"",
+          "x": 0.06,
+          "y": 0.26
+        },
+        {
+          "text": "\"Another one, scattered like screenshots.\"",
+          "x": 0.52,
+          "y": 0.34
+        },
+        {
+          "text": "\"Cards can overlap for a dynamic feel.\"",
+          "x": 0.28,
+          "y": 0.55
+        }
+      ],
+      "notes": "Scattered quote cards; the visual pass swaps in real screenshots."
+    },
+    {
+      "type": "evolution",
+      "kicker": "The machine at work",
+      "text": "Test. Kill. Multiply.",
+      "gens": [
+        {
+          "count": 5,
+          "win": 2,
+          "label": "5 launch"
+        },
+        {
+          "count": 5,
+          "win": 1,
+          "per_parent": true,
+          "label": "5 from each winner"
+        },
+        {
+          "count": 5,
+          "win": 1,
+          "per_parent": true,
+          "label": "and again"
+        }
+      ],
+      "split": false,
+      "notes": "Split-cluster iteration diagram: winners spawn their own dot groups. Often hand-refined; mark locked once the expert touches it."
     },
     {
       "type": "section",

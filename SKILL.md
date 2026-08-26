@@ -68,7 +68,7 @@ Produce `{workspace}/{workshop-slug}/outline.md` (human-readable full lesson out
    ```
    uv run scripts/build_deck.py {workshop-slug}/deck.json --brand {workspace}/brand-tokens.json
    ```
-   It prints the presentation URL — open it for review. Whatever the platform, `deck.json` is always produced first; it's the platform-neutral source of truth.
+   It prints the presentation URL — open it for review. First build only: every later change re-renders IN PLACE with `--into <presentationId>` (one living deck; comments, notes, and `"locked": true` hand-built slides preserved). Whatever the platform, `deck.json` is always produced first; it's the platform-neutral source of truth.
 2. **Now asset:** build the attendee walk-away (worksheet PDF, a prompt, a sheet — whatever Phase 1 defined).
 3. **Delivery checklist:** copy the one-page checklist from `references/delivery-playbook.md` into the workshop folder, personalized (their opening line, their close plan).
 

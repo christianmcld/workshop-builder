@@ -25,14 +25,19 @@
     "tone_text": "#F4F3EE",
     "tone_muted": "#9FAA9F",
     "tone_serif": "#CBB89A",
-    "tone_watermark": "#242E29"
+    "tone_watermark": "#242E29",
+    "secondary": "#B9C4C3",
+    "quote_echo": "#ECEBE6",
+    "watermark_dark": "#1F1F1D",
+    "ink_faint": "#9A998F"
   },
   "fonts": {
     "heading": "Montserrat",
     "body": "Inter",
-    "note": "Must be Google Fonts family names \u2014 the Slides API resolves them by name.",
+    "note": "Google Fonts family names only. Roles: heading=display serif/sans, body=basic text (serif allowed), wordmark=header chrome, mono=kickers/structural, handwritten=signature.",
     "handwritten": "Caveat",
-    "mono": "JetBrains Mono"
+    "mono": "JetBrains Mono",
+    "wordmark": "Inter"
   },
   "style_notes": "Overall visual feel: minimal / bold / warm / editorial etc. Border radius, photography style, anything that guides the visual pass.",
   "voice_notes": "How this brand talks. Pull from client tone files if they exist \u2014 never invent.",

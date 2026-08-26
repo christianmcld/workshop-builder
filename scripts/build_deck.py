@@ -299,7 +299,7 @@ class Deck:
             self.apply_marks(tid, marks, dark, self.f["body"], 40, True)
         elif t == "section":
             # singular text blocks are always centered (left-align is reserved
-            # for two-column layouts) — per Christian's design review
+            # for two-column layouts) — per expert design review
             clean, marks = parse_marks(text)
             x, y = pct(0.10, 0.30)
             w, h = pct(0.80, 0.40)

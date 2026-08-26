@@ -2,6 +2,16 @@
 
 The layout language `build_deck.py` v2 renders. Derived by studying Tom Noske's actual 118-slide Workshop Mastery deck; every rule below earned its place in a live rebuild.
 
+## The structure/brand contract
+
+The engine and the brand file divide cleanly, and the line must never blur:
+
+**Structural (lives HERE, identical for every user):** the slide shapes and layouts; where each element sits and how big it is; the font ROLE hierarchy (preheadline = mono caps, headline = bold body font, dual-tone serif phrases, subtext smaller and muted); the three color registers as a system (light teaches, dark dramatizes, tone structures); reveal rhythm, chrome placement, spacing rules, length budgets.
+
+**Brand (lives in each user's brand-tokens.json, unique per user):** which actual typefaces fill the roles (heading/body/mono/handwritten/wordmark — a brand may set a serif as body); every color value in every register; the logo, wordmark text, signature, and watermark; voice and punctuation rules.
+
+When adding anything new, ask: would every brand want this same way? Then it's structure and belongs in the renderer. Is it a face, a hex, a name, a voice? Then it's a token. Never hardcode a brand value in the renderer; never encode geometry in a brand file.
+
 ## Persistent chrome (every slide)
 
 - **Header wordmark** top-center: small, letterspaced caps in the body font (letterspace manually — the Slides API has no tracking control: `"F I E L D W O R K"`). From `chrome.header_wordmark` in brand-tokens.
